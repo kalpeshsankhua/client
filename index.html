@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GST Management System — Kalpesh Sankhua</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #1a56db;
+  --primary-light: #e8f0fe;
+  --primary-dark: #1239a0;
+  --success: #0d9488;
+  --success-light: #d1fae5;
+  --warning: #d97706;
+  --warning-light: #fef3c7;
+  --danger: #dc2626;
+  --danger-light: #fee2e2;
+  --neutral-50: #f8fafc;
+  --neutral-100: #f1f5f9;
+  --neutral-200: #e2e8f0;
+  --neutral-300: #cbd5e1;
+  --neutral-400: #94a3b8;
+  --neutral-500: #64748b;
+  --neutral-600: #475569;
+  --neutral-700: #334155;
+  --neutral-800: #1e293b;
+  --neutral-900: #0f172a;
+  --white: #ffffff;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04);
+  --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--neutral-50);
+  color: var(--neutral-800);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--white);
+  border-bottom: 1px solid var(--neutral-200);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+.header-brand { display: flex; align-items: center; gap: 10px; }
+.header-brand .logo {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 16px;
+}
+.header-brand h1 { font-size: 16px; font-weight: 700; color: var(--neutral-900); }
+.header-brand span { font-size: 12px; color: var(--neutral-500); font-weight: 400; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.sync-status { font-size: 12px; color: var(--neutral-500); display: flex; align-items: center; gap: 6px; }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+.sync-dot.syncing { background: var(--warning); animation: pulse 1s infinite; }
+.sync-dot.error { background: var(--danger); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 6px; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  transition: all 0.15s; text-decoration: none;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-secondary { background: var(--neutral-100); color: var(--neutral-700); border: 1px solid var(--neutral-200); }
+.btn-secondary:hover { background: var(--neutral-200); }
+.btn-success { background: var(--success); color: white; }
+.btn-success:hover { background: #0a7a70; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn-xs { padding: 3px 8px; font-size: 11px; border-radius: 4px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── TABS ── */
+.tabs-bar {
+  background: var(--white);
+  border-bottom: 1px solid var(--neutral-200);
+  padding: 0 24px;
+  display: flex; gap: 0;
+  overflow-x: auto;
+}
+.tab-btn {
+  padding: 14px 18px; border: none; background: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  color: var(--neutral-500); border-bottom: 2px solid transparent;
+  white-space: nowrap; transition: all 0.15s;
+}
+.tab-btn:hover { color: var(--primary); }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* ── CONTENT ── */
+.content { padding: 20px 24px; max-width: 1400px; }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── CARDS / SECTIONS ── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.card-header {
+  padding: 16px 20px; border-bottom: 1px solid var(--neutral-100);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+}
+.card-header h3 { font-size: 14px; font-weight: 600; color: var(--neutral-800); }
+.card-body { padding: 0; }
+
+/* ── KPI GRID ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.kpi-card {
+  background: var(--white);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+}
+.kpi-label { font-size: 11px; font-weight: 600; color: var(--neutral-500); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.kpi-value { font-size: 26px; font-weight: 700; color: var(--neutral-900); font-family: 'DM Mono', monospace; }
+.kpi-sub { font-size: 12px; color: var(--neutral-400); margin-top: 4px; }
+.kpi-card.highlight { background: var(--primary); border-color: var(--primary-dark); }
+.kpi-card.highlight .kpi-label { color: rgba(255,255,255,0.7); }
+.kpi-card.highlight .kpi-value { color: white; }
+.kpi-card.highlight .kpi-sub { color: rgba(255,255,255,0.6); }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  background: var(--neutral-50); padding: 10px 14px;
+  font-size: 11px; font-weight: 600; color: var(--neutral-500);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  text-align: left; border-bottom: 1px solid var(--neutral-200);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 11px 14px; border-bottom: 1px solid var(--neutral-100);
+  font-size: 13px; color: var(--neutral-700); vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--neutral-50); }
+.mono { font-family: 'DM Mono', monospace; font-size: 12px; }
+
+/* ── BADGE ── */
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.badge-success { background: var(--success-light); color: #065f46; }
+.badge-warning { background: var(--warning-light); color: #92400e; }
+.badge-danger { background: var(--danger-light); color: #991b1b; }
+.badge-blue { background: var(--primary-light); color: #1e3a8a; }
+.badge-neutral { background: var(--neutral-100); color: var(--neutral-600); }
+
+/* ── DROPDOWN in table ── */
+.td-select {
+  padding: 5px 8px; border: 1px solid var(--neutral-200); border-radius: 5px;
+  font-family: 'DM Sans', sans-serif; font-size: 12px; background: var(--white);
+  color: var(--neutral-700); cursor: pointer;
+}
+.td-select:focus { outline: none; border-color: var(--primary); }
+.td-input {
+  padding: 5px 8px; border: 1px solid var(--neutral-200); border-radius: 5px;
+  font-family: 'DM Sans', sans-serif; font-size: 12px; width: 100%; min-width: 110px;
+}
+.td-input:focus { outline: none; border-color: var(--primary); }
+
+/* ── EXPAND ROW ── */
+.expand-row td {
+  padding: 0 !important;
+  background: var(--neutral-50) !important;
+}
+.expand-content {
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+.expand-field label { font-size: 11px; font-weight: 600; color: var(--neutral-400); text-transform: uppercase; }
+.expand-field p { font-size: 13px; color: var(--neutral-800); margin-top: 3px; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.35); z-index: 200;
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md); width: 100%; max-width: 520px;
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-header {
+  padding: 18px 22px; border-bottom: 1px solid var(--neutral-200);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h4 { font-size: 15px; font-weight: 600; }
+.modal-close { background: none; border: none; cursor: pointer; font-size: 20px; color: var(--neutral-400); line-height: 1; }
+.modal-body { padding: 20px 22px; }
+.modal-footer { padding: 16px 22px; border-top: 1px solid var(--neutral-100); display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ── FORM ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid.single { grid-template-columns: 1fr; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 12px; font-weight: 600; color: var(--neutral-600); }
+.field input, .field select, .field textarea {
+  padding: 8px 12px; border: 1px solid var(--neutral-200); border-radius: 6px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--neutral-800);
+  background: var(--white); transition: border 0.15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light);
+}
+.field-full { grid-column: 1 / -1; }
+
+/* ── TOOLBAR ── */
+.toolbar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.search-box {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--white); border: 1px solid var(--neutral-200);
+  border-radius: 6px; padding: 6px 12px; flex: 1; min-width: 200px;
+}
+.search-box input {
+  border: none; outline: none; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; flex: 1; background: transparent;
+}
+.search-icon { color: var(--neutral-400); font-size: 15px; }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.toast-item {
+  background: var(--neutral-900); color: white;
+  padding: 12px 18px; border-radius: 8px; font-size: 13px;
+  box-shadow: var(--shadow-md); animation: slideUp 0.3s ease;
+  display: flex; align-items: center; gap: 10px; min-width: 280px;
+}
+.toast-item.success { background: #065f46; }
+.toast-item.error { background: #991b1b; }
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+/* ── LOADING ── */
+.loading-row td { text-align: center; padding: 32px; color: var(--neutral-400); }
+.spinner {
+  display: inline-block; width: 18px; height: 18px;
+  border: 2px solid var(--neutral-200); border-top-color: var(--primary);
+  border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── PERIOD CELLS (return status) ── */
+.period-grid { display: flex; gap: 8px; }
+.period-cell {
+  min-width: 150px; background: var(--neutral-50); border: 1px solid var(--neutral-200);
+  border-radius: 7px; padding: 8px 10px;
+}
+.period-cell .period-label { font-size: 10px; font-weight: 600; color: var(--neutral-400); text-transform: uppercase; margin-bottom: 6px; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center; padding: 48px 20px; color: var(--neutral-400);
+}
+.empty-state .icon { font-size: 36px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; }
+
+/* ── PASSWORD SHOW/HIDE ── */
+.pwd-wrap { position: relative; display: flex; align-items: center; }
+.pwd-wrap input { flex: 1; padding-right: 36px; }
+.pwd-toggle {
+  position: absolute; right: 8px; background: none; border: none;
+  cursor: pointer; color: var(--neutral-400); font-size: 14px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .header { padding: 0 14px; }
+  .content { padding: 14px; }
+  .tabs-bar { padding: 0 10px; }
+  .tab-btn { padding: 12px 12px; font-size: 12px; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .header-brand h1 { font-size: 14px; }
+  .header-brand span { display: none; }
+}
+@media (max-width: 480px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+}
+
+/* ── SECTION SPACING ── */
+.section { margin-bottom: 24px; }
+.section-title {
+  font-size: 13px; font-weight: 600; color: var(--neutral-600);
+  margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+}
+.divider { height: 1px; background: var(--neutral-100); margin: 20px 0; }
+
+/* Action button row */
+.action-btns { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ HEADER ═══════════════════ -->
+<header class="header">
+  <div class="header-brand">
+    <div class="logo">G</div>
+    <div>
+      <h1>GST Management</h1>
+      <span>Kalpesh Sankhua &amp; Associates</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="sync-status">
+      <span class="sync-dot" id="syncDot"></span>
+      <span id="syncLabel">—</span>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="syncNow()">
+      🔄 Sync Now
+    </button>
+  </div>
+</header>
+
+<!-- ═══════════════════ TABS BAR ═══════════════════ -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="switchTab('clients')">👥 Client Master</button>
+  <button class="tab-btn" onclick="switchTab('returns')">📋 GST Return Status</button>
+  <button class="tab-btn" onclick="switchTab('outstanding')">💰 Outstanding Fees</button>
+  <button class="tab-btn" onclick="switchTab('payments')">✅ Payment Received</button>
+</div>
+
+<!-- ═══════════════════ CONTENT ═══════════════════ -->
+<div class="content">
+
+  <!-- ─────────── TAB 1: CLIENT MASTER ─────────── -->
+  <div class="tab-panel active" id="tab-clients">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="clientSearch" placeholder="Search clients…" oninput="filterClients()">
+      </div>
+      <button class="btn btn-primary" onclick="openAddClient()">+ Add Client</button>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <h3>Client Master List</h3>
+        <span id="clientCount" class="badge badge-blue">0 Clients</span>
+      </div>
+      <div class="card-body table-wrap">
+        <table id="clientTable">
+          <thead>
+            <tr>
+              <th style="width:32px"></th>
+              <th>Client Name</th>
+              <th>GSTIN</th>
+              <th>GST Username</th>
+              <th>GST Password</th>
+              <th>Return Freq.</th>
+              <th>Fees</th>
+              <th>Fees Freq.</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="clientBody">
+            <tr class="loading-row"><td colspan="9"><span class="spinner"></span> Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────── TAB 2: GST RETURN STATUS ─────────── -->
+  <div class="tab-panel" id="tab-returns">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="returnSearch" placeholder="Search clients…" oninput="filterReturns()">
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select class="td-select" id="returnFreqFilter" onchange="filterReturns()">
+          <option value="">All Frequencies</option>
+          <option>Monthly</option>
+          <option>Quarterly</option>
+        </select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <h3>GST Return Tracking</h3>
+        <span class="badge badge-neutral" id="returnCount">0 Clients</span>
+      </div>
+      <div class="card-body table-wrap">
+        <table id="returnTable">
+          <thead>
+            <tr>
+              <th>Client Name</th>
+              <th>Frequency</th>
+              <th id="period1Head">Period 1</th>
+              <th id="period2Head">Period 2</th>
+              <th id="period3Head">Period 3</th>
+            </tr>
+          </thead>
+          <tbody id="returnBody">
+            <tr class="loading-row"><td colspan="5"><span class="spinner"></span> Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p style="margin-top:12px;font-size:12px;color:var(--neutral-400);">
+      ℹ️ Changing GSTR-1 to "Data Received" or "Filed" automatically stops reminder emails.
+      Periods shown: latest 3 (newest first).
+    </p>
+  </div>
+
+  <!-- ─────────── TAB 3: OUTSTANDING FEES ─────────── -->
+  <div class="tab-panel" id="tab-outstanding">
+    <div class="kpi-grid" id="outstandingKPI">
+      <div class="kpi-card highlight">
+        <div class="kpi-label">Total Outstanding</div>
+        <div class="kpi-value" id="kpiTotal">₹0</div>
+        <div class="kpi-sub">Across all clients</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Outstanding Clients</div>
+        <div class="kpi-value" id="kpiClients">0</div>
+        <div class="kpi-sub">Clients with dues</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Outstanding Periods</div>
+        <div class="kpi-value" id="kpiPeriods">0</div>
+        <div class="kpi-sub">Total pending bills</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Highest Due</div>
+        <div class="kpi-value" id="kpiHighest">—</div>
+        <div class="kpi-sub" id="kpiHighestName">—</div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="outSearch" placeholder="Search…" oninput="filterOutstanding()">
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <h3>Outstanding Fees</h3>
+        <span class="badge badge-danger" id="outCount">0 Records</span>
+      </div>
+      <div class="card-body table-wrap">
+        <table id="outTable">
+          <thead>
+            <tr>
+              <th>Client Name</th>
+              <th>Period</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Paid Amount</th>
+              <th>Date of Payment</th>
+              <th>Mode</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="outBody">
+            <tr class="loading-row"><td colspan="8"><span class="spinner"></span> Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────── TAB 4: PAYMENT RECEIVED ─────────── -->
+  <div class="tab-panel" id="tab-payments">
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="paySearch" placeholder="Search…" oninput="filterPayments()">
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <h3>Payment Received History</h3>
+        <span class="badge badge-success" id="payCount">0 Records</span>
+      </div>
+      <div class="card-body table-wrap">
+        <table id="payTable">
+          <thead>
+            <tr>
+              <th>Client Name</th>
+              <th>Period</th>
+              <th>Fees Amount</th>
+              <th>Paid Amount</th>
+              <th>Date of Payment</th>
+              <th>Mode</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="payBody">
+            <tr class="loading-row"><td colspan="7"><span class="spinner"></span> Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<!-- ═══════════════════ TOAST ═══════════════════ -->
+<div id="toast"></div>
+
+<!-- ═══════════════════ MODAL: ADD / EDIT CLIENT ═══════════════════ -->
+<div class="modal-overlay" id="clientModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h4 id="clientModalTitle">Add New Client</h4>
+      <button class="modal-close" onclick="closeModal('clientModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editClientId">
+      <div class="form-grid">
+        <div class="field"><label>Client Name *</label><input id="fc_name" placeholder="e.g. ABC Traders"></div>
+        <div class="field"><label>GSTIN *</label><input id="fc_gstin" placeholder="27AAABB1234C1Z5" style="text-transform:uppercase"></div>
+        <div class="field"><label>GST Username</label><input id="fc_username" placeholder="Portal username"></div>
+        <div class="field">
+          <label>GST Password</label>
+          <div class="pwd-wrap">
+            <input type="password" id="fc_password" placeholder="Portal password">
+            <button class="pwd-toggle" onclick="togglePwd('fc_password',this)">👁</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Return Frequency *</label>
+          <select id="fc_freq">
+            <option value="">Select…</option>
+            <option>Monthly</option>
+            <option>Quarterly</option>
+          </select>
+        </div>
+        <div class="field"><label>Fees Amount (₹)</label><input id="fc_fees" type="number" placeholder="0"></div>
+        <div class="field">
+          <label>Fees Frequency *</label>
+          <select id="fc_fees_freq">
+            <option value="">Select…</option>
+            <option>Monthly</option>
+            <option>Quarterly</option>
+          </select>
+        </div>
+        <div class="field"><label>Date of Birth</label><input id="fc_dob" type="date"></div>
+        <div class="field"><label>Email ID</label><input id="fc_email" type="email" placeholder="client@email.com"></div>
+        <div class="field"><label>Phone Number</label><input id="fc_phone" placeholder="+91 9876543210"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('clientModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClient()">💾 Save Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MODAL: UPDATE PAYMENT ═══════════════════ -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h4>Update Payment</h4>
+      <button class="modal-close" onclick="closeModal('paymentModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="payRecordId">
+      <p style="margin-bottom:14px;font-size:13px;color:var(--neutral-600);">
+        Client: <strong id="payClientName">—</strong> &nbsp;|&nbsp; Period: <strong id="payPeriod">—</strong>
+      </p>
+      <div class="form-grid">
+        <div class="field"><label>Paid Amount (₹) *</label><input id="pay_amount" type="number" placeholder="0"></div>
+        <div class="field"><label>Date of Payment *</label><input id="pay_date" type="date"></div>
+        <div class="field field-full">
+          <label>Mode of Payment *</label>
+          <select id="pay_mode">
+            <option value="">Select…</option>
+            <option>Cash</option>
+            <option>UPI</option>
+            <option>NEFT</option>
+            <option>RTGS</option>
+            <option>Cheque</option>
+            <option>Bank Transfer</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('paymentModal')">Cancel</button>
+      <button class="btn btn-success" onclick="savePayment()">✅ Mark as Paid</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ JAVASCRIPT ═══════════════════ -->
+<script>
+// ──────────────────────────────────────────────
+// ⚠️ REPLACE THIS WITH YOUR ACTUAL DEPLOYED WEB APP URL
+// ──────────────────────────────────────────────
+const API_URL = 'https://script.google.com/macros/s/AKfycbyOpruydDVlYMb0QDb06Y7CbboGkXormkA7ozlk6kZJMSH3zBV1ygrP3p90p3lSRhJd8Q/exec';
+
+// ──────────────────────────────────────────────
+// STATE
+// ──────────────────────────────────────────────
+let allClients = [];
+let allReturns = [];
+let allOutstanding = [];
+let allPayments = [];
+let syncTimer = null;
+let activeTab = 'clients';
+
+// ──────────────────────────────────────────────
+// INIT
+// ──────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadAll();
+  startAutoSync();
+});
+
+function startAutoSync() {
+  if (syncTimer) clearInterval(syncTimer);
+  syncTimer = setInterval(loadAll, 120000); // every 2 minutes
+}
+
+function syncNow() {
+  loadAll(true);
+}
+
+// ──────────────────────────────────────────────
+// TABS
+// ──────────────────────────────────────────────
+function switchTab(name) {
+  activeTab = name;
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ──────────────────────────────────────────────
+// SYNC STATUS
+// ──────────────────────────────────────────────
+function setSyncStatus(state, msg) {
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  dot.className = 'sync-dot' + (state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
+  lbl.textContent = msg;
+}
+
+// ──────────────────────────────────────────────
+// API CALLS
+// ──────────────────────────────────────────────
+async function apiGet(action, params = {}) {
+  const url = new URL(API_URL);
+  url.searchParams.set('action', action);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+async function apiPost(action, data = {}) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, ...data })
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+// ──────────────────────────────────────────────
+// LOAD ALL DATA
+// ──────────────────────────────────────────────
+async function loadAll(manual = false) {
+  setSyncStatus('syncing', 'Syncing…');
+  try {
+    const [clients, returns, outstanding, payments] = await Promise.all([
+      apiGet('getClients'),
+      apiGet('getReturns'),
+      apiGet('getOutstanding'),
+      apiGet('getPayments')
+    ]);
+    allClients = clients.data || [];
+    allReturns = returns.data || [];
+    allOutstanding = outstanding.data || [];
+    allPayments = payments.data || [];
+
+    renderClients();
+    renderReturns();
+    renderOutstanding();
+    renderPayments();
+
+    const now = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    setSyncStatus('ok', 'Last sync: ' + now);
+    if (manual) showToast('Data synced successfully', 'success');
+  } catch (e) {
+    setSyncStatus('error', 'Sync failed');
+    if (manual) showToast('Sync failed: ' + e.message, 'error');
+    console.error(e);
+  }
+}
+
+// ──────────────────────────────────────────────
+// TAB 1: CLIENTS
+// ──────────────────────────────────────────────
+function renderClients(data) {
+  const rows = data || allClients;
+  const tbody = document.getElementById('clientBody');
+  document.getElementById('clientCount').textContent = rows.length + ' Clients';
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="icon">👥</div><p>No clients found. Add your first client.</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map((c, i) => {
+    const id = c.id || i;
+    return `
+    <tr class="client-main-row" data-index="${id}" style="cursor:pointer" onclick="toggleExpand(this,'${id}')">
+      <td style="color:var(--neutral-400);font-size:12px">▶</td>
+      <td><strong>${esc(c.name)}</strong></td>
+      <td class="mono">${esc(c.gstin)}</td>
+      <td class="mono">${esc(c.username)}</td>
+      <td><span class="mono" title="${esc(c.password)}">••••••</span></td>
+      <td><span class="badge ${c.returnFreq === 'Monthly' ? 'badge-blue' : 'badge-warning'}">${esc(c.returnFreq)}</span></td>
+      <td class="mono">₹${num(c.fees)}</td>
+      <td><span class="badge badge-neutral">${esc(c.feesFreq)}</span></td>
+      <td onclick="event.stopPropagation()">
+        <div class="action-btns">
+          <button class="btn btn-secondary btn-xs" onclick="openEditClient('${id}')">✏️</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteClient('${id}')">🗑</button>
+        </div>
+      </td>
+    </tr>
+    <tr class="expand-row" id="expand-${id}" style="display:none">
+      <td colspan="9">
+        <div class="expand-content">
+          <div class="expand-field"><label>Date of Birth</label><p>${esc(c.dob) || '—'}</p></div>
+          <div class="expand-field"><label>Email ID</label><p>${esc(c.email) || '—'}</p></div>
+          <div class="expand-field"><label>Phone</label><p>${esc(c.phone) || '—'}</p></div>
+          <div class="expand-field"><label>GST Username</label><p class="mono">${esc(c.username) || '—'}</p></div>
+          <div class="expand-field"><label>GST Password</label><p class="mono">${esc(c.password) || '—'}</p></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleExpand(row, id) {
+  const expand = document.getElementById('expand-' + id);
+  const arrow = row.querySelector('td:first-child');
+  if (expand.style.display === 'none') {
+    expand.style.display = '';
+    arrow.textContent = '▼';
+  } else {
+    expand.style.display = 'none';
+    arrow.textContent = '▶';
+  }
+}
+
+function filterClients() {
+  const q = document.getElementById('clientSearch').value.toLowerCase();
+  const filtered = allClients.filter(c =>
+    (c.name||'').toLowerCase().includes(q) ||
+    (c.gstin||'').toLowerCase().includes(q)
+  );
+  renderClients(filtered);
+}
+
+// ── ADD / EDIT CLIENT ──
+function openAddClient() {
+  document.getElementById('editClientId').value = '';
+  document.getElementById('clientModalTitle').textContent = 'Add New Client';
+  ['fc_name','fc_gstin','fc_username','fc_password','fc_fees','fc_email','fc_phone'].forEach(id => document.getElementById(id).value = '');
+  ['fc_freq','fc_fees_freq'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fc_dob').value = '';
+  openModal('clientModal');
+}
+
+function openEditClient(id) {
+  const c = allClients.find(x => String(x.id) === String(id));
+  if (!c) return;
+  document.getElementById('editClientId').value = id;
+  document.getElementById('clientModalTitle').textContent = 'Edit Client';
+  document.getElementById('fc_name').value = c.name || '';
+  document.getElementById('fc_gstin').value = c.gstin || '';
+  document.getElementById('fc_username').value = c.username || '';
+  document.getElementById('fc_password').value = c.password || '';
+  document.getElementById('fc_freq').value = c.returnFreq || '';
+  document.getElementById('fc_fees').value = c.fees || '';
+  document.getElementById('fc_fees_freq').value = c.feesFreq || '';
+  document.getElementById('fc_dob').value = c.dob || '';
+  document.getElementById('fc_email').value = c.email || '';
+  document.getElementById('fc_phone').value = c.phone || '';
+  openModal('clientModal');
+}
+
+async function saveClient() {
+  const id = document.getElementById('editClientId').value;
+  const data = {
+    id,
+    name: document.getElementById('fc_name').value.trim(),
+    gstin: document.getElementById('fc_gstin').value.trim().toUpperCase(),
+    username: document.getElementById('fc_username').value.trim(),
+    password: document.getElementById('fc_password').value.trim(),
+    returnFreq: document.getElementById('fc_freq').value,
+    fees: document.getElementById('fc_fees').value,
+    feesFreq: document.getElementById('fc_fees_freq').value,
+    dob: document.getElementById('fc_dob').value,
+    email: document.getElementById('fc_email').value.trim(),
+    phone: document.getElementById('fc_phone').value.trim()
+  };
+  if (!data.name || !data.gstin) { showToast('Name and GSTIN are required', 'error'); return; }
+  try {
+    const action = id ? 'updateClient' : 'addClient';
+    const res = await apiPost(action, { client: data });
+    if (res.success) {
+      closeModal('clientModal');
+      showToast(id ? 'Client updated' : 'Client added', 'success');
+      loadAll();
+    } else { showToast(res.message || 'Save failed', 'error'); }
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function deleteClient(id) {
+  if (!confirm('Delete this client? This cannot be undone.')) return;
+  try {
+    const res = await apiPost('deleteClient', { id });
+    if (res.success) { showToast('Client deleted', 'success'); loadAll(); }
+    else showToast(res.message || 'Delete failed', 'error');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ──────────────────────────────────────────────
+// TAB 2: GST RETURN STATUS
+// ──────────────────────────────────────────────
+function getPeriods(freq) {
+  const now = new Date();
+  const periods = [];
+  if (freq === 'Monthly') {
+    for (let i = 0; i < 3; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      periods.push({
+        key: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,
+        label: d.toLocaleString('en-IN', { month: 'long', year: 'numeric' })
+      });
+    }
+  } else {
+    // Quarterly
+    const currQ = Math.floor(now.getMonth() / 3);
+    for (let i = 0; i < 3; i++) {
+      let q = currQ - i;
+      let y = now.getFullYear();
+      while (q < 0) { q += 4; y--; }
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const start = q * 3;
+      const end = start + 2;
+      periods.push({
+        key: `${y}-Q${q+1}`,
+        label: `${months[start]} to ${months[end]} ${y}`
+      });
+    }
+  }
+  return periods;
+}
+
+function renderReturns(data) {
+  const rows = data || allReturns;
+  const tbody = document.getElementById('returnBody');
+  document.getElementById('returnCount').textContent = rows.length + ' Clients';
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon">📋</div><p>No return data. Add clients first.</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    const periods = getPeriods(r.returnFreq);
+    const periodCells = periods.map((p, pi) => {
+      const rd = (r.periods || {})[p.key] || {};
+      return `
+      <td>
+        <div class="period-cell">
+          <div class="period-label">${p.label}</div>
+          <div style="margin-bottom:5px">
+            <div style="font-size:10px;color:var(--neutral-500);margin-bottom:2px">GSTR-1</div>
+            <select class="td-select" onchange="updateReturnStatus('${r.id}','${p.key}','gstr1',this.value,this)"
+              style="width:100%">
+              ${gstr1Opts(rd.gstr1||'Data Not Received')}
+            </select>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--neutral-500);margin-bottom:2px">GSTR-3B</div>
+            <select class="td-select" onchange="updateReturnStatus('${r.id}','${p.key}','gstr3b',this.value,this)"
+              style="width:100%">
+              ${gstr3bOpts(rd.gstr3b||'Not Filed')}
+            </select>
+          </div>
+        </div>
+      </td>`;
+    }).join('');
+    return `<tr>
+      <td><strong>${esc(r.name)}</strong></td>
+      <td><span class="badge ${r.returnFreq==='Monthly'?'badge-blue':'badge-warning'}">${esc(r.returnFreq)}</span></td>
+      ${periodCells}
+    </tr>`;
+  }).join('');
+}
+
+function gstr1Opts(selected) {
+  return ['Data Not Received','Data Received','Filed'].map(v =>
+    `<option ${v===selected?'selected':''}>${v}</option>`).join('');
+}
+function gstr3bOpts(selected) {
+  return ['Not Filed','Filed'].map(v =>
+    `<option ${v===selected?'selected':''}>${v}</option>`).join('');
+}
+
+async function updateReturnStatus(clientId, period, field, value, el) {
+  const orig = el.dataset.orig || el.value;
+  el.disabled = true;
+  try {
+    const res = await apiPost('updateReturnStatus', { clientId, period, field, value });
+    if (res.success) {
+      showToast('Status updated', 'success');
+      el.dataset.orig = value;
+      // Update local data
+      const r = allReturns.find(x => String(x.id) === String(clientId));
+      if (r) { if (!r.periods) r.periods = {}; if (!r.periods[period]) r.periods[period] = {}; r.periods[period][field] = value; }
+    } else { showToast(res.message || 'Update failed', 'error'); el.value = orig; }
+  } catch(e) { showToast('Error: ' + e.message, 'error'); el.value = orig; }
+  el.disabled = false;
+}
+
+function filterReturns() {
+  const q = document.getElementById('returnSearch').value.toLowerCase();
+  const freq = document.getElementById('returnFreqFilter').value;
+  const filtered = allReturns.filter(r =>
+    (r.name||'').toLowerCase().includes(q) &&
+    (freq === '' || r.returnFreq === freq)
+  );
+  renderReturns(filtered);
+}
+
+// ──────────────────────────────────────────────
+// TAB 3: OUTSTANDING FEES
+// ──────────────────────────────────────────────
+function renderOutstanding(data) {
+  const rows = data || allOutstanding;
+  const tbody = document.getElementById('outBody');
+  document.getElementById('outCount').textContent = rows.length + ' Records';
+
+  // KPIs
+  const total = rows.reduce((s, r) => s + (parseFloat(r.amount)||0), 0);
+  const uniqueClients = new Set(rows.map(r => r.clientName)).size;
+  const sorted = [...rows].sort((a,b)=>(parseFloat(b.amount)||0)-(parseFloat(a.amount)||0));
+  document.getElementById('kpiTotal').textContent = '₹' + num(total);
+  document.getElementById('kpiClients').textContent = uniqueClients;
+  document.getElementById('kpiPeriods').textContent = rows.length;
+  if (sorted[0]) {
+    document.getElementById('kpiHighest').textContent = '₹' + num(sorted[0].amount);
+    document.getElementById('kpiHighestName').textContent = sorted[0].clientName;
+  } else {
+    document.getElementById('kpiHighest').textContent = '—';
+    document.getElementById('kpiHighestName').textContent = '—';
+  }
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">💰</div><p>No outstanding fees. All clear!</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td><strong>${esc(r.clientName)}</strong></td>
+      <td>${esc(r.period)}</td>
+      <td class="mono">₹${num(r.amount)}</td>
+      <td><span class="badge badge-danger">Outstanding</span></td>
+      <td class="mono">${r.paidAmount ? '₹'+num(r.paidAmount) : '—'}</td>
+      <td>${esc(r.payDate) || '—'}</td>
+      <td>${esc(r.payMode) || '—'}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn btn-success btn-xs" onclick="openPayment('${r.id}','${esc(r.clientName)}','${esc(r.period)}')">💳 Pay</button>
+          <button class="btn btn-secondary btn-xs" onclick="downloadPDF('${r.id}')">📄 PDF</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function filterOutstanding() {
+  const q = document.getElementById('outSearch').value.toLowerCase();
+  const filtered = allOutstanding.filter(r => (r.clientName||'').toLowerCase().includes(q));
+  renderOutstanding(filtered);
+}
+
+function openPayment(id, name, period) {
+  document.getElementById('payRecordId').value = id;
+  document.getElementById('payClientName').textContent = name;
+  document.getElementById('payPeriod').textContent = period;
+  document.getElementById('pay_amount').value = '';
+  document.getElementById('pay_date').value = '';
+  document.getElementById('pay_mode').value = '';
+  openModal('paymentModal');
+}
+
+async function savePayment() {
+  const id = document.getElementById('payRecordId').value;
+  const amount = document.getElementById('pay_amount').value;
+  const date = document.getElementById('pay_date').value;
+  const mode = document.getElementById('pay_mode').value;
+  if (!amount || !date || !mode) { showToast('All fields required', 'error'); return; }
+  try {
+    const res = await apiPost('updatePayment', { id, amount, date, mode });
+    if (res.success) {
+      closeModal('paymentModal');
+      showToast('Payment recorded & moved to Payment Received', 'success');
+      loadAll();
+    } else showToast(res.message || 'Save failed', 'error');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function downloadPDF(id) {
+  showToast('Generating PDF…');
+  try {
+    const res = await apiGet('getPDFData', { id });
+    if (res.success) generatePDF(res.data);
+    else showToast(res.message || 'PDF failed', 'error');
+  } catch(e) { showToast('PDF error: ' + e.message, 'error'); }
+}
+
+function generatePDF(d) {
+  const html = `
+  <html><head><style>
+    body{font-family:Arial,sans-serif;padding:40px;color:#1e293b}
+    h1{font-size:22px;color:#1a56db;margin-bottom:4px}
+    .sub{color:#64748b;font-size:13px;margin-bottom:24px}
+    table{width:100%;border-collapse:collapse;margin-top:16px}
+    th{background:#f1f5f9;padding:10px;text-align:left;font-size:12px;border:1px solid #e2e8f0}
+    td{padding:10px;border:1px solid #e2e8f0;font-size:13px}
+    .total{font-weight:700;background:#e8f0fe}
+    .footer{margin-top:32px;font-size:12px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:16px}
+  </style></head><body>
+  <h1>GST Fees Ledger</h1>
+  <div class="sub">Generated on ${new Date().toLocaleDateString('en-IN')}</div>
+  <table>
+    <tr><th>Field</th><th>Details</th></tr>
+    <tr><td>Client Name</td><td>${esc(d.clientName)}</td></tr>
+    <tr><td>Outstanding Period</td><td>${esc(d.period)}</td></tr>
+    <tr><td>Fees Amount</td><td>₹${num(d.amount)}</td></tr>
+    <tr><td>Paid Amount</td><td>₹${num(d.paidAmount||0)}</td></tr>
+    <tr><td>Payment Date</td><td>${d.payDate||'—'}</td></tr>
+    <tr><td>Mode of Payment</td><td>${d.payMode||'—'}</td></tr>
+    <tr class="total"><td>Total Outstanding</td><td>₹${num((parseFloat(d.amount)||0)-(parseFloat(d.paidAmount)||0))}</td></tr>
+  </table>
+  <div class="footer">Regards,<br><strong>Kalpesh Sankhua</strong></div>
+  </body></html>`;
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(() => w.print(), 500);
+}
+
+// ──────────────────────────────────────────────
+// TAB 4: PAYMENTS RECEIVED
+// ──────────────────────────────────────────────
+function renderPayments(data) {
+  const rows = data || allPayments;
+  const tbody = document.getElementById('payBody');
+  document.getElementById('payCount').textContent = rows.length + ' Records';
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">✅</div><p>No payments recorded yet.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td><strong>${esc(r.clientName)}</strong></td>
+      <td>${esc(r.period)}</td>
+      <td class="mono">₹${num(r.amount)}</td>
+      <td class="mono">₹${num(r.paidAmount)}</td>
+      <td>${esc(r.payDate)}</td>
+      <td>${esc(r.payMode)}</td>
+      <td><span class="badge badge-success">Paid</span></td>
+    </tr>`).join('');
+}
+
+function filterPayments() {
+  const q = document.getElementById('paySearch').value.toLowerCase();
+  const filtered = allPayments.filter(r => (r.clientName||'').toLowerCase().includes(q));
+  renderPayments(filtered);
+}
+
+// ──────────────────────────────────────────────
+// MODAL HELPERS
+// ──────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ──────────────────────────────────────────────
+// UTILITY
+// ──────────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function num(n) { return parseFloat(n||0).toLocaleString('en-IN'); }
+function togglePwd(id, btn) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+  btn.textContent = el.type === 'password' ? '👁' : '🙈';
+}
+
+// ──────────────────────────────────────────────
+// TOAST
+// ──────────────────────────────────────────────
+function showToast(msg, type = '') {
+  const div = document.createElement('div');
+  div.className = 'toast-item ' + type;
+  div.textContent = (type === 'success' ? '✅ ' : type === 'error' ? '❌ ' : 'ℹ️ ') + msg;
+  document.getElementById('toast').appendChild(div);
+  setTimeout(() => div.remove(), 3500);
+}
+</script>
+</body>
+</html>
