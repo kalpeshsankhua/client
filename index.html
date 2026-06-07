@@ -3,1160 +3,862 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GST Management System — Kalpesh Sankhua</title>
+<title>GST Tracker — K World Tax Advisor's</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --primary: #1a56db;
-  --primary-light: #e8f0fe;
-  --primary-dark: #1239a0;
-  --success: #0d9488;
-  --success-light: #d1fae5;
-  --warning: #d97706;
-  --warning-light: #fef3c7;
-  --danger: #dc2626;
-  --danger-light: #fee2e2;
-  --neutral-50: #f8fafc;
-  --neutral-100: #f1f5f9;
-  --neutral-200: #e2e8f0;
-  --neutral-300: #cbd5e1;
-  --neutral-400: #94a3b8;
-  --neutral-500: #64748b;
-  --neutral-600: #475569;
-  --neutral-700: #334155;
-  --neutral-800: #1e293b;
-  --neutral-900: #0f172a;
-  --white: #ffffff;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04);
-  --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
-  --radius: 8px;
-  --radius-lg: 12px;
+:root{
+  --primary:#1a56db;--primary-lt:#e8f0fe;--primary-dk:#1239a0;
+  --success:#0d9488;--success-lt:#d1fae5;
+  --danger:#dc2626;--danger-lt:#fee2e2;
+  --warning:#d97706;--warning-lt:#fef3c7;
+  --purple:#7c3aed;--purple-lt:#f5f3ff;
+  --n50:#f8fafc;--n100:#f1f5f9;--n200:#e2e8f0;--n300:#cbd5e1;
+  --n400:#94a3b8;--n500:#64748b;--n600:#475569;--n700:#334155;
+  --n800:#1e293b;--n900:#0f172a;--white:#fff;
+  --sh1:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 12px rgba(0,0,0,.09),0 2px 4px rgba(0,0,0,.04);
+  --sh3:0 20px 50px rgba(0,0,0,.15),0 6px 12px rgba(0,0,0,.06);
+  --r:8px;--rl:12px;
+  /* group colours */
+  --gc-client:#1a56db;--gc-fees:#0d9488;--gc-ret:#d97706;
+  --gc-client-lt:#e8f0fe;--gc-fees-lt:#d1fae5;--gc-ret-lt:#fef3c7;
 }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'DM Sans',sans-serif;background:var(--n50);color:var(--n800);font-size:13px;line-height:1.5}
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* ══ HEADER ══ */
+.hdr{background:var(--white);border-bottom:1px solid var(--n200);padding:0 18px;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:300;box-shadow:var(--sh1)}
+.brand{display:flex;align-items:center;gap:9px}
+.logo{width:32px;height:32px;background:var(--primary);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;flex-shrink:0}
+.brand-title{font-size:14px;font-weight:700;color:var(--n900);line-height:1.2}
+.brand-sub{font-size:10px;color:var(--n400)}
+.hdr-right{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.sync-row{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--n500)}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--success);flex-shrink:0}
+.sdot.busy{background:var(--warning);animation:blink 1s infinite}
+.sdot.err{background:var(--danger)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--neutral-50);
-  color: var(--neutral-800);
-  font-size: 14px;
-  line-height: 1.5;
-}
+/* ══ BUTTONS ══ */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-dk)}
+.btn-secondary{background:var(--n100);color:var(--n700);border:1px solid var(--n200)}.btn-secondary:hover{background:var(--n200)}
+.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#b91c1c}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-xs{padding:2px 7px;font-size:10px;border-radius:4px}
 
-/* ── HEADER ── */
-.header {
-  background: var(--white);
-  border-bottom: 1px solid var(--neutral-200);
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 60px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: var(--shadow-sm);
-}
-.header-brand { display: flex; align-items: center; gap: 10px; }
-.header-brand .logo {
-  width: 36px; height: 36px;
-  background: var(--primary);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  color: white; font-weight: 700; font-size: 16px;
-}
-.header-brand h1 { font-size: 16px; font-weight: 700; color: var(--neutral-900); }
-.header-brand span { font-size: 12px; color: var(--neutral-500); font-weight: 400; }
-.header-right { display: flex; align-items: center; gap: 12px; }
-.sync-status { font-size: 12px; color: var(--neutral-500); display: flex; align-items: center; gap: 6px; }
-.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
-.sync-dot.syncing { background: var(--warning); animation: pulse 1s infinite; }
-.sync-dot.error { background: var(--danger); }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+/* ══ CONTENT ══ */
+.content{padding:14px 18px}
 
-.btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 7px 14px; border-radius: 6px; border: none; cursor: pointer;
-  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
-  transition: all 0.15s; text-decoration: none;
-}
-.btn-primary { background: var(--primary); color: white; }
-.btn-primary:hover { background: var(--primary-dark); }
-.btn-secondary { background: var(--neutral-100); color: var(--neutral-700); border: 1px solid var(--neutral-200); }
-.btn-secondary:hover { background: var(--neutral-200); }
-.btn-success { background: var(--success); color: white; }
-.btn-success:hover { background: #0a7a70; }
-.btn-danger { background: var(--danger); color: white; }
-.btn-sm { padding: 4px 10px; font-size: 12px; }
-.btn-xs { padding: 3px 8px; font-size: 11px; border-radius: 4px; }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+/* ══ KPI STRIP ══ */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px}
+.kpi{background:var(--white);border:1px solid var(--n200);border-radius:var(--rl);padding:11px 13px;box-shadow:var(--sh1);border-left:4px solid var(--n200);cursor:pointer;transition:all .15s;user-select:none}
+.kpi:hover{box-shadow:var(--sh2);transform:translateY(-1px)}
+.kpi.active-filter{box-shadow:var(--sh2);transform:translateY(-1px)}
+.kpi.blue{border-left-color:var(--primary)}.kpi.blue.active-filter{background:var(--primary-lt)}
+.kpi.green{border-left-color:var(--success)}.kpi.green.active-filter{background:var(--success-lt)}
+.kpi.red{border-left-color:var(--danger)}.kpi.red.active-filter{background:var(--danger-lt)}
+.kpi.orange{border-left-color:var(--warning)}.kpi.orange.active-filter{background:var(--warning-lt)}
+.kpi.purple{border-left-color:var(--purple)}.kpi.purple.active-filter{background:var(--purple-lt)}
+.kpi-label{font-size:9px;font-weight:700;color:var(--n500);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+.kpi-val{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:var(--n900);line-height:1}
+.kpi-sub{font-size:10px;color:var(--n400);margin-top:2px}
+.kpi-hint{font-size:9px;color:var(--n400);margin-top:2px;font-style:italic}
 
-/* ── TABS ── */
-.tabs-bar {
-  background: var(--white);
-  border-bottom: 1px solid var(--neutral-200);
-  padding: 0 24px;
-  display: flex; gap: 0;
-  overflow-x: auto;
-}
-.tab-btn {
-  padding: 14px 18px; border: none; background: none; cursor: pointer;
-  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
-  color: var(--neutral-500); border-bottom: 2px solid transparent;
-  white-space: nowrap; transition: all 0.15s;
-}
-.tab-btn:hover { color: var(--primary); }
-.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+/* ══ TOOLBAR ══ */
+.toolbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:10px;background:var(--white);border:1px solid var(--n200);border-radius:var(--rl);padding:9px 12px}
+.tlbl{font-size:10px;font-weight:700;color:var(--n500);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.sbox{display:flex;align-items:center;gap:6px;background:var(--n50);border:1px solid var(--n200);border-radius:6px;padding:5px 9px;flex:1;min-width:150px}
+.sbox input{border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:12px;flex:1;background:transparent;color:var(--n800)}
+.fsel{padding:5px 7px;border:1px solid var(--n200);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:11px;background:var(--white);color:var(--n700);cursor:pointer;font-weight:600}
+.fsel:focus{outline:none;border-color:var(--primary)}
+.sep{width:1px;height:18px;background:var(--n200);flex-shrink:0}
 
-/* ── CONTENT ── */
-.content { padding: 20px 24px; max-width: 1400px; }
+/* ══ PERIOD CHIPS ══ */
+.period-strip{display:flex;gap:5px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;max-width:500px}
+.period-strip::-webkit-scrollbar{height:3px}
+.period-strip::-webkit-scrollbar-thumb{background:var(--n200);border-radius:3px}
+.pchip{padding:3px 11px;border-radius:20px;border:1.5px solid var(--n200);background:var(--n50);color:var(--n600);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.pchip:hover{border-color:var(--primary);color:var(--primary)}
+.pchip.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.pchip.all-chip{background:var(--n100)}
+.pchip.all-chip.active{background:var(--n700);border-color:var(--n700);color:#fff}
 
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
+/* ══ COLUMN GROUP TOGGLES ══ */
+.group-toggles{display:flex;gap:6px;align-items:center}
+.gtog{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:5px;border:1.5px solid;font-size:10px;font-weight:700;cursor:pointer;transition:all .15s;user-select:none}
+.gtog.client{border-color:var(--gc-client);color:var(--gc-client);background:var(--gc-client-lt)}
+.gtog.client.hidden-grp{background:var(--n100);color:var(--n500);border-color:var(--n300)}
+.gtog.fees{border-color:var(--gc-fees);color:var(--gc-fees);background:var(--gc-fees-lt)}
+.gtog.fees.hidden-grp{background:var(--n100);color:var(--n500);border-color:var(--n300)}
+.gtog.ret{border-color:var(--gc-ret);color:var(--gc-ret);background:var(--gc-ret-lt)}
+.gtog.ret.hidden-grp{background:var(--n100);color:var(--n500);border-color:var(--n300)}
+.gtog-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
 
-/* ── CARDS / SECTIONS ── */
-.card {
-  background: var(--white);
-  border: 1px solid var(--neutral-200);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-}
-.card-header {
-  padding: 16px 20px; border-bottom: 1px solid var(--neutral-100);
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 12px;
-}
-.card-header h3 { font-size: 14px; font-weight: 600; color: var(--neutral-800); }
-.card-body { padding: 0; }
+/* ══ TABLE WRAPPER — sticky header ══ */
+.card{background:var(--white);border:1px solid var(--n200);border-radius:var(--rl);box-shadow:var(--sh1);overflow:hidden}
+.card-hdr{padding:10px 15px;border-bottom:1px solid var(--n100);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.card-hdr h3{font-size:13px;font-weight:700;color:var(--n800)}
 
-/* ── KPI GRID ── */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
-}
-.kpi-card {
-  background: var(--white);
-  border: 1px solid var(--neutral-200);
-  border-radius: var(--radius-lg);
-  padding: 18px 20px;
-  box-shadow: var(--shadow-sm);
-}
-.kpi-label { font-size: 11px; font-weight: 600; color: var(--neutral-500); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-.kpi-value { font-size: 26px; font-weight: 700; color: var(--neutral-900); font-family: 'DM Mono', monospace; }
-.kpi-sub { font-size: 12px; color: var(--neutral-400); margin-top: 4px; }
-.kpi-card.highlight { background: var(--primary); border-color: var(--primary-dark); }
-.kpi-card.highlight .kpi-label { color: rgba(255,255,255,0.7); }
-.kpi-card.highlight .kpi-value { color: white; }
-.kpi-card.highlight .kpi-sub { color: rgba(255,255,255,0.6); }
+/* The table scroll container — fixed height so header sticks */
+.tbl-outer{overflow:auto;max-height:calc(100vh - 330px);-webkit-overflow-scrolling:touch}
+.tbl-outer::-webkit-scrollbar{width:6px;height:6px}
+.tbl-outer::-webkit-scrollbar-thumb{background:var(--n200);border-radius:3px}
 
-/* ── TABLE ── */
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; }
-thead th {
-  background: var(--neutral-50); padding: 10px 14px;
-  font-size: 11px; font-weight: 600; color: var(--neutral-500);
-  text-transform: uppercase; letter-spacing: 0.04em;
-  text-align: left; border-bottom: 1px solid var(--neutral-200);
-  white-space: nowrap;
-}
-tbody td {
-  padding: 11px 14px; border-bottom: 1px solid var(--neutral-100);
-  font-size: 13px; color: var(--neutral-700); vertical-align: middle;
-}
-tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover td { background: var(--neutral-50); }
-.mono { font-family: 'DM Mono', monospace; font-size: 12px; }
+table{width:100%;border-collapse:collapse;min-width:1000px}
 
-/* ── BADGE ── */
-.badge {
-  display: inline-flex; align-items: center;
-  padding: 3px 9px; border-radius: 20px;
-  font-size: 11px; font-weight: 600; white-space: nowrap;
+/* STICKY HEADER ROWS */
+thead th{
+  background:var(--n50);
+  padding:0;
+  border-bottom:1px solid var(--n200);
+  white-space:nowrap;
+  position:sticky;
+  top:0;
+  z-index:10;
 }
-.badge-success { background: var(--success-light); color: #065f46; }
-.badge-warning { background: var(--warning-light); color: #92400e; }
-.badge-danger { background: var(--danger-light); color: #991b1b; }
-.badge-blue { background: var(--primary-light); color: #1e3a8a; }
-.badge-neutral { background: var(--neutral-100); color: var(--neutral-600); }
+/* row 1 = group headers */
+.th-group{
+  font-size:9px;font-weight:800;text-align:center;text-transform:uppercase;letter-spacing:.07em;
+  padding:5px 8px;border-left:2px solid rgba(255,255,255,.4);
+}
+.th-group:first-child{border-left:none}
+.th-grp-client{background:var(--gc-client);color:#fff}
+.th-grp-fees  {background:var(--gc-fees);color:#fff}
+.th-grp-ret   {background:var(--gc-ret);color:#fff}
+.th-grp-acts  {background:var(--n200);color:var(--n600);font-size:8px}
 
-/* ── DROPDOWN in table ── */
-.td-select {
-  padding: 5px 8px; border: 1px solid var(--neutral-200); border-radius: 5px;
-  font-family: 'DM Sans', sans-serif; font-size: 12px; background: var(--white);
-  color: var(--neutral-700); cursor: pointer;
+/* row 2 = col headers — sticky at top+row1-height (~28px) */
+.th-col{
+  font-size:9px;font-weight:700;color:var(--n500);text-transform:uppercase;letter-spacing:.05em;
+  text-align:left;padding:6px 10px;border-bottom:2px solid var(--n200);
+  position:sticky;top:28px;z-index:9;
+  background:var(--n50);
 }
-.td-select:focus { outline: none; border-color: var(--primary); }
-.td-input {
-  padding: 5px 8px; border: 1px solid var(--neutral-200); border-radius: 5px;
-  font-family: 'DM Sans', sans-serif; font-size: 12px; width: 100%; min-width: 110px;
-}
-.td-input:focus { outline: none; border-color: var(--primary); }
+.th-col.r{text-align:right}
+.th-col.c{text-align:center}
 
-/* ── EXPAND ROW ── */
-.expand-row td {
-  padding: 0 !important;
-  background: var(--neutral-50) !important;
-}
-.expand-content {
-  padding: 16px 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 14px;
-}
-.expand-field label { font-size: 11px; font-weight: 600; color: var(--neutral-400); text-transform: uppercase; }
-.expand-field p { font-size: 13px; color: var(--neutral-800); margin-top: 3px; }
+/* Group colour tint on col headers */
+.th-client{background:#f0f5ff;border-bottom-color:var(--gc-client)}
+.th-fees  {background:#f0fdf9;border-bottom-color:var(--gc-fees)}
+.th-ret   {background:#fffbeb;border-bottom-color:var(--gc-ret)}
 
-/* ── MODAL ── */
-.modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.35); z-index: 200;
-  align-items: center; justify-content: center; padding: 20px;
-}
-.modal-overlay.open { display: flex; }
-.modal {
-  background: var(--white); border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md); width: 100%; max-width: 520px;
-  max-height: 90vh; overflow-y: auto;
-}
-.modal-header {
-  padding: 18px 22px; border-bottom: 1px solid var(--neutral-200);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.modal-header h4 { font-size: 15px; font-weight: 600; }
-.modal-close { background: none; border: none; cursor: pointer; font-size: 20px; color: var(--neutral-400); line-height: 1; }
-.modal-body { padding: 20px 22px; }
-.modal-footer { padding: 16px 22px; border-top: 1px solid var(--neutral-100); display: flex; gap: 10px; justify-content: flex-end; }
+tbody td{padding:7px 10px;border-bottom:1px solid var(--n100);font-size:12px;color:var(--n700);vertical-align:middle}
+tbody td.r{text-align:right}
+tbody td.c{text-align:center}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#f8fafc}
 
-/* ── FORM ── */
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.form-grid.single { grid-template-columns: 1fr; }
-.field { display: flex; flex-direction: column; gap: 5px; }
-.field label { font-size: 12px; font-weight: 600; color: var(--neutral-600); }
-.field input, .field select, .field textarea {
-  padding: 8px 12px; border: 1px solid var(--neutral-200); border-radius: 6px;
-  font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--neutral-800);
-  background: var(--white); transition: border 0.15s;
-}
-.field input:focus, .field select:focus, .field textarea:focus {
-  outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light);
-}
-.field-full { grid-column: 1 / -1; }
+/* Group left borders on body cells */
+td.grp-client-first{border-left:2px solid var(--gc-client)!important}
+td.grp-fees-first  {border-left:2px solid var(--gc-fees)!important}
+td.grp-ret-first   {border-left:2px solid var(--gc-ret)!important}
+th.grp-client-first{border-left:2px solid var(--gc-client)!important}
+th.grp-fees-first  {border-left:2px solid var(--gc-fees)!important}
+th.grp-ret-first   {border-left:2px solid var(--gc-ret)!important}
 
-/* ── TOOLBAR ── */
-.toolbar {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-.search-box {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--white); border: 1px solid var(--neutral-200);
-  border-radius: 6px; padding: 6px 12px; flex: 1; min-width: 200px;
-}
-.search-box input {
-  border: none; outline: none; font-family: 'DM Sans', sans-serif;
-  font-size: 13px; flex: 1; background: transparent;
-}
-.search-icon { color: var(--neutral-400); font-size: 15px; }
+/* TOTAL ROW */
+.tot-row td{background:var(--primary-lt)!important;font-weight:700;font-size:11px;color:var(--primary-dk)!important;border-top:2px solid var(--primary)!important;border-bottom:2px solid var(--primary)!important}
+.tot-row td.r{font-family:'DM Mono',monospace}
 
-/* ── TOAST ── */
-#toast {
-  position: fixed; bottom: 24px; right: 24px; z-index: 999;
-  display: flex; flex-direction: column; gap: 8px;
-}
-.toast-item {
-  background: var(--neutral-900); color: white;
-  padding: 12px 18px; border-radius: 8px; font-size: 13px;
-  box-shadow: var(--shadow-md); animation: slideUp 0.3s ease;
-  display: flex; align-items: center; gap: 10px; min-width: 280px;
-}
-.toast-item.success { background: #065f46; }
-.toast-item.error { background: #991b1b; }
-@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+/* ROW HIGHLIGHTS */
+tr.has-out td{background:#fff8f8}
+tr.has-out:hover td{background:#fef2f2}
+tr.all-paid td{background:#f0fdf9}
+tr.all-paid:hover td{background:#ecfdf5}
 
-/* ── LOADING ── */
-.loading-row td { text-align: center; padding: 32px; color: var(--neutral-400); }
-.spinner {
-  display: inline-block; width: 18px; height: 18px;
-  border: 2px solid var(--neutral-200); border-top-color: var(--primary);
-  border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+/* ══ INLINE CELLS ══ */
+.mono{font-family:'DM Mono',monospace;font-size:11px}
+.name-cell{font-weight:600;color:var(--n800)}
+.gstin-cell{font-family:'DM Mono',monospace;font-size:10px;color:var(--n600)}
+.out-red{color:var(--danger);font-weight:700;font-family:'DM Mono',monospace}
+.paid-green{color:var(--success);font-family:'DM Mono',monospace}
+.zero-grey{color:var(--n400);font-family:'DM Mono',monospace}
 
-/* ── PERIOD CELLS (return status) ── */
-.period-grid { display: flex; gap: 8px; }
-.period-cell {
-  min-width: 150px; background: var(--neutral-50); border: 1px solid var(--neutral-200);
-  border-radius: 7px; padding: 8px 10px;
-}
-.period-cell .period-label { font-size: 10px; font-weight: 600; color: var(--neutral-400); text-transform: uppercase; margin-bottom: 6px; }
+/* ══ BADGES ══ */
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;white-space:nowrap}
+.bg-blue{background:var(--primary-lt);color:#1e3a8a}
+.bg-orange{background:var(--warning-lt);color:#92400e}
+.bg-green{background:var(--success-lt);color:#065f46}
+.bg-neutral{background:var(--n100);color:var(--n600)}
 
-/* ── EMPTY STATE ── */
-.empty-state {
-  text-align: center; padding: 48px 20px; color: var(--neutral-400);
-}
-.empty-state .icon { font-size: 36px; margin-bottom: 12px; }
-.empty-state p { font-size: 14px; }
+/* ══ STATUS PILLS ══ */
+.pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;border:1.5px solid;cursor:pointer;white-space:nowrap;transition:all .15s;user-select:none}
+.pill.filed{background:#f0fdf4;border-color:#bbf7d0;color:#15803d}
+.pill.not-filed{background:var(--danger-lt);border-color:#fecaca;color:#991b1b}
+.pill:hover{opacity:.8}
 
-/* ── PASSWORD SHOW/HIDE ── */
-.pwd-wrap { position: relative; display: flex; align-items: center; }
-.pwd-wrap input { flex: 1; padding-right: 36px; }
-.pwd-toggle {
-  position: absolute; right: 8px; background: none; border: none;
-  cursor: pointer; color: var(--neutral-400); font-size: 14px;
-}
+/* ══ PASSWORD — visible by default ══ */
+.pwd-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--n700)}
 
-/* ── RESPONSIVE ── */
-@media (max-width: 768px) {
-  .header { padding: 0 14px; }
-  .content { padding: 14px; }
-  .tabs-bar { padding: 0 10px; }
-  .tab-btn { padding: 12px 12px; font-size: 12px; }
-  .kpi-grid { grid-template-columns: 1fr 1fr; }
-  .form-grid { grid-template-columns: 1fr; }
-  .header-brand h1 { font-size: 14px; }
-  .header-brand span { display: none; }
-}
-@media (max-width: 480px) {
-  .kpi-grid { grid-template-columns: 1fr; }
-}
+/* ══ MODAL ══ */
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,22,41,.45);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:var(--rl);box-shadow:var(--sh3);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;animation:mIn .2s cubic-bezier(.34,1.4,.64,1)}
+@keyframes mIn{from{transform:translateY(14px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+.mhdr{padding:13px 17px;border-bottom:1px solid var(--n200);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white);z-index:1}
+.mhdr h4{font-size:13px;font-weight:700}
+.mclose{background:none;border:none;cursor:pointer;font-size:18px;color:var(--n400);padding:2px 5px;border-radius:4px;line-height:1}
+.mclose:hover{background:var(--n100)}
+.mbody{padding:15px 17px}
+.mfooter{padding:11px 17px;border-top:1px solid var(--n100);display:flex;gap:8px;justify-content:flex-end}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:9px}
+.fg label{font-size:9px;font-weight:700;color:var(--n600);text-transform:uppercase;letter-spacing:.05em}
+.fg input,.fg select{padding:6px 9px;border:1px solid var(--n200);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--n800);background:var(--white)}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-lt)}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-/* ── SECTION SPACING ── */
-.section { margin-bottom: 24px; }
-.section-title {
-  font-size: 13px; font-weight: 600; color: var(--neutral-600);
-  margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-}
-.divider { height: 1px; background: var(--neutral-100); margin: 20px 0; }
+/* ══ TOAST ══ */
+#toast{position:fixed;bottom:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:6px}
+.ti{background:var(--n900);color:#fff;padding:10px 14px;border-radius:7px;font-size:12px;box-shadow:var(--sh2);animation:slideUp .3s ease;display:flex;align-items:center;gap:7px;min-width:210px}
+.ti.ok{background:#065f46}.ti.err{background:#991b1b}
+@keyframes slideUp{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-/* Action button row */
-.action-btns { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+/* ══ SPINNER / EMPTY ══ */
+.spin{display:inline-block;width:13px;height:13px;border:2px solid var(--n200);border-top-color:var(--primary);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:5px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loading-row td,.empty-st{text-align:center;padding:28px;color:var(--n400)}
+.empty-st .ico{font-size:28px;margin-bottom:7px}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:900px){
+  .kpi-row{grid-template-columns:1fr 1fr 1fr}
+  .tbl-outer{max-height:calc(100vh - 380px)}
+}
+@media(max-width:600px){
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .brand-sub,.sync-label{display:none}
+  .content{padding:10px 10px}
+}
+@media(max-width:400px){.kpi-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════ HEADER ═══════════════════ -->
-<header class="header">
-  <div class="header-brand">
+<!-- ══ HEADER ══ -->
+<header class="hdr">
+  <div class="brand">
     <div class="logo">G</div>
     <div>
-      <h1>GST Management</h1>
-      <span>Kalpesh Sankhua &amp; Associates</span>
+      <div class="brand-title">K World Tax Advisor's</div>
+      <div class="brand-sub">Kalpesh Sankhua &nbsp;|&nbsp; 8097763577 &nbsp;|&nbsp; Thane</div>
     </div>
   </div>
-  <div class="header-right">
-    <div class="sync-status">
-      <span class="sync-dot" id="syncDot"></span>
-      <span id="syncLabel">—</span>
+  <div class="hdr-right">
+    <div class="sync-row">
+      <span class="sdot" id="sdot"></span>
+      <span id="syncLbl" class="sync-label">—</span>
     </div>
-    <button class="btn btn-secondary btn-sm" onclick="syncNow()">
-      🔄 Sync Now
-    </button>
+    <button class="btn btn-secondary btn-sm" onclick="syncNow()">🔄 Sync</button>
+    <button class="btn btn-primary btn-sm" onclick="openAddRow()">+ Add Entry</button>
   </div>
 </header>
 
-<!-- ═══════════════════ TABS BAR ═══════════════════ -->
-<div class="tabs-bar">
-  <button class="tab-btn active" onclick="switchTab('clients')">👥 Client Master</button>
-  <button class="tab-btn" onclick="switchTab('returns')">📋 GST Return Status</button>
-  <button class="tab-btn" onclick="switchTab('outstanding')">💰 Outstanding Fees</button>
-  <button class="tab-btn" onclick="switchTab('payments')">✅ Payment Received</button>
-</div>
-
-<!-- ═══════════════════ CONTENT ═══════════════════ -->
 <div class="content">
 
-  <!-- ─────────── TAB 1: CLIENT MASTER ─────────── -->
-  <div class="tab-panel active" id="tab-clients">
-    <div class="toolbar">
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="clientSearch" placeholder="Search clients…" oninput="filterClients()">
-      </div>
-      <button class="btn btn-primary" onclick="openAddClient()">+ Add Client</button>
+  <!-- ══ KPI CARDS (clickable filters) ══ -->
+  <div class="kpi-row">
+    <div class="kpi blue" id="kpi-all" onclick="kpiFilter('all')">
+      <div class="kpi-label">Total Fees Due</div>
+      <div class="kpi-val" id="kFeesDue">₹0</div>
+      <div class="kpi-sub" id="kPeriodLbl">All periods</div>
+      <div class="kpi-hint">Click to show all</div>
     </div>
-    <div class="card">
-      <div class="card-header">
-        <h3>Client Master List</h3>
-        <span id="clientCount" class="badge badge-blue">0 Clients</span>
-      </div>
-      <div class="card-body table-wrap">
-        <table id="clientTable">
-          <thead>
-            <tr>
-              <th style="width:32px"></th>
-              <th>Client Name</th>
-              <th>GSTIN</th>
-              <th>GST Username</th>
-              <th>GST Password</th>
-              <th>Return Freq.</th>
-              <th>Fees</th>
-              <th>Fees Freq.</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="clientBody">
-            <tr class="loading-row"><td colspan="9"><span class="spinner"></span> Loading…</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="kpi green" id="kpi-paid" onclick="kpiFilter('paid')">
+      <div class="kpi-label">Fees Collected</div>
+      <div class="kpi-val" id="kFeesPaid">₹0</div>
+      <div class="kpi-sub">Paid entries</div>
+      <div class="kpi-hint">Click to filter paid</div>
+    </div>
+    <div class="kpi red" id="kpi-outstanding" onclick="kpiFilter('outstanding')">
+      <div class="kpi-label">Fees Outstanding</div>
+      <div class="kpi-val" id="kFeesOut">₹0</div>
+      <div class="kpi-sub">Pending collection</div>
+      <div class="kpi-hint">Click to filter pending</div>
+    </div>
+    <div class="kpi orange" id="kpi-gstr1" onclick="kpiFilter('gstr1')">
+      <div class="kpi-label">GSTR-1 Pending</div>
+      <div class="kpi-val" id="kGstr1">0</div>
+      <div class="kpi-sub">Not filed yet</div>
+      <div class="kpi-hint">Click to filter</div>
+    </div>
+    <div class="kpi purple" id="kpi-gstr3b" onclick="kpiFilter('gstr3b')">
+      <div class="kpi-label">GSTR-3B Pending</div>
+      <div class="kpi-val" id="kGstr3b">0</div>
+      <div class="kpi-sub">Not filed yet</div>
+      <div class="kpi-hint">Click to filter</div>
     </div>
   </div>
 
-  <!-- ─────────── TAB 2: GST RETURN STATUS ─────────── -->
-  <div class="tab-panel" id="tab-returns">
-    <div class="toolbar">
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="returnSearch" placeholder="Search clients…" oninput="filterReturns()">
-      </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <select class="td-select" id="returnFreqFilter" onchange="filterReturns()">
-          <option value="">All Frequencies</option>
-          <option>Monthly</option>
-          <option>Quarterly</option>
-        </select>
-      </div>
+  <!-- ══ TOOLBAR ══ -->
+  <div class="toolbar">
+    <!-- Period filter -->
+    <span class="tlbl">📅 Period</span>
+    <div class="period-strip" id="periodStrip">
+      <span class="pchip all-chip active" onclick="selectPeriod('all',this)">All</span>
     </div>
-    <div class="card">
-      <div class="card-header">
-        <h3>GST Return Tracking</h3>
-        <span class="badge badge-neutral" id="returnCount">0 Clients</span>
-      </div>
-      <div class="card-body table-wrap">
-        <table id="returnTable">
-          <thead>
-            <tr>
-              <th>Client Name</th>
-              <th>Frequency</th>
-              <th id="period1Head">Period 1</th>
-              <th id="period2Head">Period 2</th>
-              <th id="period3Head">Period 3</th>
-            </tr>
-          </thead>
-          <tbody id="returnBody">
-            <tr class="loading-row"><td colspan="5"><span class="spinner"></span> Loading…</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <p style="margin-top:12px;font-size:12px;color:var(--neutral-400);">
-      ℹ️ Changing GSTR-1 to "Data Received" or "Filed" automatically stops reminder emails.
-      Periods shown: latest 3 (newest first).
-    </p>
-  </div>
 
-  <!-- ─────────── TAB 3: OUTSTANDING FEES ─────────── -->
-  <div class="tab-panel" id="tab-outstanding">
-    <div class="kpi-grid" id="outstandingKPI">
-      <div class="kpi-card highlight">
-        <div class="kpi-label">Total Outstanding</div>
-        <div class="kpi-value" id="kpiTotal">₹0</div>
-        <div class="kpi-sub">Across all clients</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Outstanding Clients</div>
-        <div class="kpi-value" id="kpiClients">0</div>
-        <div class="kpi-sub">Clients with dues</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Outstanding Periods</div>
-        <div class="kpi-value" id="kpiPeriods">0</div>
-        <div class="kpi-sub">Total pending bills</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Highest Due</div>
-        <div class="kpi-value" id="kpiHighest">—</div>
-        <div class="kpi-sub" id="kpiHighestName">—</div>
-      </div>
+    <div class="sep"></div>
+
+    <!-- Search & filters -->
+    <div class="sbox">
+      <span style="color:var(--n400)">🔍</span>
+      <input type="text" id="srch" placeholder="Search name, GSTIN…" oninput="applyFilters()">
     </div>
-    <div class="toolbar">
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="outSearch" placeholder="Search…" oninput="filterOutstanding()">
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header">
-        <h3>Outstanding Fees</h3>
-        <span class="badge badge-danger" id="outCount">0 Records</span>
-      </div>
-      <div class="card-body table-wrap">
-        <table id="outTable">
-          <thead>
-            <tr>
-              <th>Client Name</th>
-              <th>Period</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Paid Amount</th>
-              <th>Date of Payment</th>
-              <th>Mode</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="outBody">
-            <tr class="loading-row"><td colspan="8"><span class="spinner"></span> Loading…</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <select class="fsel" id="fFreq" onchange="applyFilters()">
+      <option value="">All Freq.</option>
+      <option>Monthly</option><option>Quarterly</option>
+    </select>
+    <select class="fsel" id="fFees" onchange="applyFilters()">
+      <option value="">Fees: All</option>
+      <option value="outstanding">Outstanding</option>
+      <option value="paid">Fully Paid</option>
+    </select>
+    <select class="fsel" id="fGstr1" onchange="applyFilters()">
+      <option value="">GSTR-1: All</option>
+      <option value="Filed">Filed</option>
+      <option value="Not Filed">Not Filed</option>
+    </select>
+    <select class="fsel" id="fGstr3b" onchange="applyFilters()">
+      <option value="">GSTR-3B: All</option>
+      <option value="Filed">Filed</option>
+      <option value="Not Filed">Not Filed</option>
+    </select>
+    <button class="btn btn-secondary btn-xs" onclick="clearFilters()" title="Clear all filters">✕ Clear</button>
+
+    <div class="sep"></div>
+
+    <!-- Column group toggles -->
+    <span class="tlbl">Columns</span>
+    <div class="group-toggles">
+      <span class="gtog client" id="tog-client" onclick="toggleGroup('client')" title="Toggle Client Details">
+        <span class="gtog-dot"></span>Client Details
+      </span>
+      <span class="gtog fees" id="tog-fees" onclick="toggleGroup('fees')" title="Toggle Fees">
+        <span class="gtog-dot"></span>Fees
+      </span>
+      <span class="gtog ret" id="tog-ret" onclick="toggleGroup('ret')" title="Toggle Returns">
+        <span class="gtog-dot"></span>Returns
+      </span>
     </div>
   </div>
 
-  <!-- ─────────── TAB 4: PAYMENT RECEIVED ─────────── -->
-  <div class="tab-panel" id="tab-payments">
-    <div class="toolbar">
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="paySearch" placeholder="Search…" oninput="filterPayments()">
-      </div>
+  <!-- ══ TABLE CARD ══ -->
+  <div class="card">
+    <div class="card-hdr">
+      <h3 id="tableTitle">Client &amp; Returns</h3>
+      <span class="badge bg-blue" id="rowCount">0 rows</span>
     </div>
-    <div class="card">
-      <div class="card-header">
-        <h3>Payment Received History</h3>
-        <span class="badge badge-success" id="payCount">0 Records</span>
-      </div>
-      <div class="card-body table-wrap">
-        <table id="payTable">
-          <thead>
-            <tr>
-              <th>Client Name</th>
-              <th>Period</th>
-              <th>Fees Amount</th>
-              <th>Paid Amount</th>
-              <th>Date of Payment</th>
-              <th>Mode</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="payBody">
-            <tr class="loading-row"><td colspan="7"><span class="spinner"></span> Loading…</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <!-- Scrollable container — header stays frozen via position:sticky inside it -->
+    <div class="tbl-outer" id="tblOuter">
+      <table id="mainTable">
+        <thead id="thead">
+          <!-- Built by JS so group show/hide works -->
+        </thead>
+        <tbody id="tbody">
+          <tr class="loading-row"><td colspan="13"><span class="spin"></span>Loading…</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
 </div><!-- /content -->
-
-<!-- ═══════════════════ TOAST ═══════════════════ -->
 <div id="toast"></div>
 
-<!-- ═══════════════════ MODAL: ADD / EDIT CLIENT ═══════════════════ -->
-<div class="modal-overlay" id="clientModal">
+<!-- ══ MODAL: ADD / EDIT ROW ══ -->
+<div class="overlay" id="rowModal">
   <div class="modal">
-    <div class="modal-header">
-      <h4 id="clientModalTitle">Add New Client</h4>
-      <button class="modal-close" onclick="closeModal('clientModal')">×</button>
+    <div class="mhdr">
+      <h4 id="modalTitle">Add New Entry</h4>
+      <button class="mclose" onclick="closeModal()">×</button>
     </div>
-    <div class="modal-body">
-      <input type="hidden" id="editClientId">
-      <div class="form-grid">
-        <div class="field"><label>Client Name *</label><input id="fc_name" placeholder="e.g. ABC Traders"></div>
-        <div class="field"><label>GSTIN *</label><input id="fc_gstin" placeholder="27AAABB1234C1Z5" style="text-transform:uppercase"></div>
-        <div class="field"><label>GST Username</label><input id="fc_username" placeholder="Portal username"></div>
-        <div class="field">
-          <label>GST Password</label>
-          <div class="pwd-wrap">
-            <input type="password" id="fc_password" placeholder="Portal password">
-            <button class="pwd-toggle" onclick="togglePwd('fc_password',this)">👁</button>
-          </div>
-        </div>
-        <div class="field">
-          <label>Return Frequency *</label>
-          <select id="fc_freq">
-            <option value="">Select…</option>
-            <option>Monthly</option>
-            <option>Quarterly</option>
-          </select>
-        </div>
-        <div class="field"><label>Fees Amount (₹)</label><input id="fc_fees" type="number" placeholder="0"></div>
-        <div class="field">
-          <label>Fees Frequency *</label>
-          <select id="fc_fees_freq">
-            <option value="">Select…</option>
-            <option>Monthly</option>
-            <option>Quarterly</option>
-          </select>
-        </div>
-        <div class="field"><label>Date of Birth</label><input id="fc_dob" type="date"></div>
-        <div class="field"><label>Email ID</label><input id="fc_email" type="email" placeholder="client@email.com"></div>
-        <div class="field"><label>Phone Number</label><input id="fc_phone" placeholder="+91 9876543210"></div>
+    <div class="mbody">
+      <input type="hidden" id="editRowId">
+      <div class="fg2">
+        <div class="fg"><label>Client Name *</label><input id="m_name" placeholder="e.g. ABC Traders"></div>
+        <div class="fg"><label>GSTIN *</label><input id="m_gstin" placeholder="27AAABB1234C1Z5" style="text-transform:uppercase"></div>
       </div>
+      <div class="fg2">
+        <div class="fg"><label>GST Username</label><input id="m_user" placeholder="Portal username"></div>
+        <div class="fg"><label>GST Password</label><input id="m_pass" placeholder="Portal password"></div>
+      </div>
+      <div class="fg2">
+        <div class="fg"><label>Period (Month) *</label><input type="month" id="m_period"></div>
+        <div class="fg"><label>Return Frequency *</label>
+          <select id="m_freq"><option value="">Select…</option><option>Monthly</option><option>Quarterly</option></select></div>
+      </div>
+      <div class="fg2">
+        <div class="fg"><label>Fees (₹)</label><input id="m_fees" type="number" placeholder="0"></div>
+        <div class="fg"><label>Fees Frequency</label>
+          <select id="m_feesfreq"><option value="">Select…</option><option>Monthly</option><option>Quarterly</option><option>Annually</option></select></div>
+      </div>
+      <div class="fg2">
+        <div class="fg"><label>Fees Paid (₹)</label><input id="m_paid" type="number" placeholder="0"></div>
+        <div class="fg"><label>GSTR-1 Status</label>
+          <select id="m_gstr1"><option value="Not Filed">Not Filed</option><option value="Filed">Filed</option></select></div>
+      </div>
+      <div class="fg"><label>GSTR-3B Status</label>
+        <select id="m_gstr3b"><option value="Not Filed">Not Filed</option><option value="Filed">Filed</option></select></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('clientModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveClient()">💾 Save Client</button>
+    <div class="mfooter">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRow()">💾 Save</button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════ MODAL: UPDATE PAYMENT ═══════════════════ -->
-<div class="modal-overlay" id="paymentModal">
-  <div class="modal">
-    <div class="modal-header">
-      <h4>Update Payment</h4>
-      <button class="modal-close" onclick="closeModal('paymentModal')">×</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="payRecordId">
-      <p style="margin-bottom:14px;font-size:13px;color:var(--neutral-600);">
-        Client: <strong id="payClientName">—</strong> &nbsp;|&nbsp; Period: <strong id="payPeriod">—</strong>
-      </p>
-      <div class="form-grid">
-        <div class="field"><label>Paid Amount (₹) *</label><input id="pay_amount" type="number" placeholder="0"></div>
-        <div class="field"><label>Date of Payment *</label><input id="pay_date" type="date"></div>
-        <div class="field field-full">
-          <label>Mode of Payment *</label>
-          <select id="pay_mode">
-            <option value="">Select…</option>
-            <option>Cash</option>
-            <option>UPI</option>
-            <option>NEFT</option>
-            <option>RTGS</option>
-            <option>Cheque</option>
-            <option>Bank Transfer</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('paymentModal')">Cancel</button>
-      <button class="btn btn-success" onclick="savePayment()">✅ Mark as Paid</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════ JAVASCRIPT ═══════════════════ -->
 <script>
-// ──────────────────────────────────────────────
-// ⚠️ REPLACE THIS WITH YOUR ACTUAL DEPLOYED WEB APP URL
-// ──────────────────────────────────────────────
-const API_URL = 'https://script.google.com/macros/s/AKfycbyOpruydDVlYMb0QDb06Y7CbboGkXormkA7ozlk6kZJMSH3zBV1ygrP3p90p3lSRhJd8Q/exec';
+// ════════════════════════════════════════
+const API = 'https://script.google.com/macros/s/AKfycbyOpruydDVlYMb0QDb06Y7CbboGkXormkA7ozlk6kZJMSH3zBV1ygrP3p90p3lSRhJd8Q/exec';
+// ════════════════════════════════════════
 
-// ──────────────────────────────────────────────
-// STATE
-// ──────────────────────────────────────────────
-let allClients = [];
-let allReturns = [];
-let allOutstanding = [];
-let allPayments = [];
-let syncTimer = null;
-let activeTab = 'clients';
+// ── STATE ──
+let allRows       = [];
+let periods       = [];
+let activePeriod  = 'all';
+let activeKpi     = 'all';
+let groupVis      = { client: true, fees: true, ret: true };
 
-// ──────────────────────────────────────────────
-// INIT
-// ──────────────────────────────────────────────
+// ── COLUMN DEFINITIONS ──
+// order: Client Name | GSTIN | Username | Password | Period | Ret.Freq | Fees | Fees Freq | Paid | Outstanding | GSTR-1 | GSTR-3B | Actions
+const COLS = [
+  { key:'name',            label:'Client Name',    group:'client', cls:'grp-client-first', align:'left'   },
+  { key:'gstin',           label:'GSTIN',          group:'client', align:'left'   },
+  { key:'username',        label:'Username',       group:'client', align:'left'   },
+  { key:'password',        label:'Password',       group:'client', align:'left'   },
+  { key:'period',          label:'Period',         group:'ret',    cls:'grp-ret-first', align:'center' },
+  { key:'returnFreq',      label:'Ret. Freq.',     group:'fees',   cls:'grp-fees-first', align:'center' },
+  { key:'fees',            label:'Fees (₹)',       group:'fees',   align:'right'  },
+  { key:'feesFreq',        label:'Fees Freq.',     group:'fees',   align:'center' },
+  { key:'feesPaid',        label:'Paid (₹)',       group:'fees',   align:'right'  },
+  { key:'feesOutstanding', label:'Outstanding (₹)',group:'fees',   align:'right'  },
+  { key:'gstr1',           label:'GSTR-1',         group:'ret',    align:'center' },
+  { key:'gstr3b',          label:'GSTR-3B',        group:'ret',    align:'center' },
+  { key:'actions',         label:'',               group:'act',    align:'center' }
+];
+
+// Group config
+const GROUPS = {
+  client: { label:'Client Details', span:0, cls:'th-grp-client' },
+  fees:   { label:'Fees',           span:0, cls:'th-grp-fees'   },
+  ret:    { label:'Returns',        span:0, cls:'th-grp-ret'    },
+  act:    { label:'',               span:1, cls:'th-grp-acts'   }
+};
+
+// ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
-  loadAll();
-  startAutoSync();
+  buildHeader();
+  loadData();
+  setInterval(loadData, 120000);
 });
+function syncNow(){ loadData(true); }
 
-function startAutoSync() {
-  if (syncTimer) clearInterval(syncTimer);
-  syncTimer = setInterval(loadAll, 120000); // every 2 minutes
+// ── SYNC STATUS ──
+function setSS(state,msg){
+  document.getElementById('sdot').className='sdot'+(state==='busy'?' busy':state==='err'?' err':'');
+  document.getElementById('syncLbl').textContent=msg;
 }
 
-function syncNow() {
-  loadAll(true);
+// ── API ──
+async function apiFetch(action,params={}){
+  const url=new URL(API);
+  url.searchParams.set('action',action);
+  Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,String(v)));
+  const r=await fetch(url.toString());
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return r.json();
+}
+async function apiPost(action,data={}){
+  const url=new URL(API);
+  url.searchParams.set('action',action);
+  url.searchParams.set('payload',JSON.stringify(data));
+  const r=await fetch(url.toString());
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return r.json();
 }
 
-// ──────────────────────────────────────────────
-// TABS
-// ──────────────────────────────────────────────
-function switchTab(name) {
-  activeTab = name;
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  event.currentTarget.classList.add('active');
+// ── LOAD ──
+async function loadData(manual=false){
+  setSS('busy','Syncing…');
+  try{
+    const res=await apiFetch('getData');
+    allRows=res.data||[];
+    const pSet=new Set(allRows.map(r=>r.periodKey).filter(Boolean));
+    periods=[...pSet].sort((a,b)=>a.localeCompare(b));
+    buildPeriodChips();
+    applyFilters();
+    const t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    setSS('ok','Synced '+t);
+    if(manual) toast('Data synced','ok');
+  }catch(e){
+    setSS('err','Sync failed');
+    if(manual) toast('Error: '+e.message,'err');
+  }
 }
 
-// ──────────────────────────────────────────────
-// SYNC STATUS
-// ──────────────────────────────────────────────
-function setSyncStatus(state, msg) {
-  const dot = document.getElementById('syncDot');
-  const lbl = document.getElementById('syncLabel');
-  dot.className = 'sync-dot' + (state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
-  lbl.textContent = msg;
-}
-
-// ──────────────────────────────────────────────
-// API CALLS
-// ──────────────────────────────────────────────
-async function apiGet(action, params = {}) {
-  const url = new URL(API_URL);
-  url.searchParams.set('action', action);
-  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-  const res = await fetch(url.toString());
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
-}
-
-async function apiPost(action, data = {}) {
-  const res = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action, ...data })
+// ── PERIOD CHIPS ──
+function buildPeriodChips(){
+  const strip=document.getElementById('periodStrip');
+  const allChip=strip.querySelector('.all-chip');
+  strip.innerHTML='';
+  strip.appendChild(allChip);
+  periods.forEach(pk=>{
+    const c=document.createElement('span');
+    c.className='pchip'+(pk===activePeriod?' active':'');
+    c.textContent=pLabel(pk);
+    c.dataset.pk=pk;
+    c.onclick=()=>selectPeriod(pk,c);
+    strip.appendChild(c);
   });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
+  allChip.classList.toggle('active',activePeriod==='all');
 }
 
-// ──────────────────────────────────────────────
-// LOAD ALL DATA
-// ──────────────────────────────────────────────
-async function loadAll(manual = false) {
-  setSyncStatus('syncing', 'Syncing…');
-  try {
-    const [clients, returns, outstanding, payments] = await Promise.all([
-      apiGet('getClients'),
-      apiGet('getReturns'),
-      apiGet('getOutstanding'),
-      apiGet('getPayments')
-    ]);
-    allClients = clients.data || [];
-    allReturns = returns.data || [];
-    allOutstanding = outstanding.data || [];
-    allPayments = payments.data || [];
-
-    renderClients();
-    renderReturns();
-    renderOutstanding();
-    renderPayments();
-
-    const now = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-    setSyncStatus('ok', 'Last sync: ' + now);
-    if (manual) showToast('Data synced successfully', 'success');
-  } catch (e) {
-    setSyncStatus('error', 'Sync failed');
-    if (manual) showToast('Sync failed: ' + e.message, 'error');
-    console.error(e);
-  }
+function selectPeriod(pk,el){
+  activePeriod=pk;
+  document.querySelectorAll('.pchip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
 }
 
-// ──────────────────────────────────────────────
-// TAB 1: CLIENTS
-// ──────────────────────────────────────────────
-function renderClients(data) {
-  const rows = data || allClients;
-  const tbody = document.getElementById('clientBody');
-  document.getElementById('clientCount').textContent = rows.length + ' Clients';
+function pLabel(pk){
+  if(!pk)return'—';
+  const[y,m]=pk.split('-');
+  return new Date(+y,+m-1,1).toLocaleString('en-IN',{month:'short',year:'numeric'});
+}
 
-  if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="icon">👥</div><p>No clients found. Add your first client.</p></div></td></tr>`;
+// ── KPI CARD CLICK FILTER ──
+function kpiFilter(type){
+  if(activeKpi===type){ activeKpi='all'; type='all'; }
+  else activeKpi=type;
+  // Clear all highlight
+  ['all','paid','outstanding','gstr1','gstr3b'].forEach(k=>{
+    const el=document.getElementById('kpi-'+k);
+    if(el) el.classList.remove('active-filter');
+  });
+  // Set active highlight
+  const tgtId = type==='all'?'kpi-all':
+                type==='paid'?'kpi-paid':
+                type==='outstanding'?'kpi-outstanding':
+                type==='gstr1'?'kpi-gstr1':'kpi-gstr3b';
+  const tgt=document.getElementById(tgtId);
+  if(tgt&&type!=='all') tgt.classList.add('active-filter');
+
+  // Sync the fees dropdown
+  const fFeesEl=document.getElementById('fFees');
+  if(type==='outstanding') fFeesEl.value='outstanding';
+  else if(type==='paid')   fFeesEl.value='paid';
+  else                     fFeesEl.value='';
+
+  const fg1El=document.getElementById('fGstr1');
+  const fg3El=document.getElementById('fGstr3b');
+  if(type==='gstr1')     { fg1El.value='Not Filed'; fg3El.value=''; }
+  else if(type==='gstr3b'){ fg3El.value='Not Filed'; fg1El.value=''; }
+  else if(type==='all')  { fg1El.value=''; fg3El.value=''; }
+
+  applyFilters();
+}
+
+// ── FILTERS ──
+function applyFilters(){
+  const q    =document.getElementById('srch').value.toLowerCase();
+  const freq =document.getElementById('fFreq').value;
+  const fFees=document.getElementById('fFees').value;
+  const fg1  =document.getElementById('fGstr1').value;
+  const fg3b =document.getElementById('fGstr3b').value;
+
+  let rows=allRows.filter(r=>{
+    if(activePeriod!=='all'&&r.periodKey!==activePeriod) return false;
+    if(q&&!(r.name||'').toLowerCase().includes(q)&&!(r.gstin||'').toLowerCase().includes(q)) return false;
+    if(freq&&r.returnFreq!==freq) return false;
+    const out=parseFloat(r.feesOutstanding)||0;
+    if(fFees==='outstanding'&&out<=0) return false;
+    if(fFees==='paid'&&out>0) return false;
+    if(fg1&&(r.gstr1||'Not Filed')!==fg1) return false;
+    if(fg3b&&(r.gstr3b||'Not Filed')!==fg3b) return false;
+    return true;
+  });
+
+  rows.sort((a,b)=>(a.periodKey||'').localeCompare(b.periodKey||'')||(a.name||'').localeCompare(b.name||''));
+  renderTable(rows);
+  updateKPIs(rows);
+}
+
+function clearFilters(){
+  document.getElementById('srch').value='';
+  ['fFreq','fFees','fGstr1','fGstr3b'].forEach(id=>document.getElementById(id).value='');
+  activeKpi='all';
+  ['all','paid','outstanding','gstr1','gstr3b'].forEach(k=>{
+    const el=document.getElementById('kpi-'+k);
+    if(el)el.classList.remove('active-filter');
+  });
+  applyFilters();
+}
+
+// ── COLUMN GROUP TOGGLE ──
+function toggleGroup(grp){
+  groupVis[grp]=!groupVis[grp];
+  const tog=document.getElementById('tog-'+grp);
+  if(groupVis[grp]) tog.classList.remove('hidden-grp');
+  else tog.classList.add('hidden-grp');
+  // Show/hide all cells with data-grp
+  document.querySelectorAll('[data-grp="'+grp+'"]').forEach(el=>{
+    el.style.display=groupVis[grp]?'':'none';
+  });
+  // Rebuild group header spans
+  buildGroupHeaderRow();
+}
+
+// ── BUILD HEADER ──
+function buildHeader(){
+  const thead=document.getElementById('thead');
+  // Row 1 — group headers (will be rebuilt on toggle too)
+  const r1=document.createElement('tr');
+  r1.id='thead-row1';
+  thead.appendChild(r1);
+  // Row 2 — column headers
+  const r2=document.createElement('tr');
+  r2.id='thead-row2';
+  COLS.forEach(col=>{
+    const th=document.createElement('th');
+    th.className='th-col'+(col.align==='right'?' r':col.align==='center'?' c':'')+
+      ' th-'+col.group+(col.cls?' '+col.cls:'');
+    th.textContent=col.label;
+    th.dataset.grp=col.group==='act'?'_act':col.group;
+    if(col.group!=='act') th.dataset.grp=col.group;
+    r2.appendChild(th);
+  });
+  thead.appendChild(r2);
+  buildGroupHeaderRow();
+}
+
+function buildGroupHeaderRow(){
+  const r1=document.getElementById('thead-row1');
+  r1.innerHTML='';
+  // Count visible cols per group
+  const counts={client:0,fees:0,ret:0,act:1};
+  COLS.forEach(col=>{
+    if(col.group==='act') return;
+    if(groupVis[col.group]) counts[col.group]=(counts[col.group]||0)+1;
+  });
+  // Render in order: client → fees → ret → act
+  ['client','fees','ret','act'].forEach(grp=>{
+    const span=counts[grp]||0;
+    if(span===0) return;
+    const th=document.createElement('th');
+    th.className='th-group '+(grp==='act'?'th-grp-acts':'th-grp-'+grp);
+    th.colSpan=span;
+    th.textContent=grp==='client'?'Client Details':grp==='fees'?'Fees':grp==='ret'?'Returns':'';
+    r1.appendChild(th);
+  });
+}
+
+// ── RENDER TABLE ──
+function renderTable(rows){
+  const tbody=document.getElementById('tbody');
+  document.getElementById('rowCount').textContent=rows.length+' rows';
+
+  // Update col2 header visibility
+  document.querySelectorAll('#thead-row2 th').forEach((th,i)=>{
+    const col=COLS[i];
+    if(col&&col.group!=='act'){
+      th.style.display=groupVis[col.group]?'':'none';
+    }
+  });
+
+  if(!rows.length){
+    tbody.innerHTML=`<tr><td colspan="13"><div class="empty-st"><div class="ico">📋</div><p>No records match the filter.</p></div></td></tr>`;
     return;
   }
 
-  tbody.innerHTML = rows.map((c, i) => {
-    const id = c.id || i;
-    return `
-    <tr class="client-main-row" data-index="${id}" style="cursor:pointer" onclick="toggleExpand(this,'${id}')">
-      <td style="color:var(--neutral-400);font-size:12px">▶</td>
-      <td><strong>${esc(c.name)}</strong></td>
-      <td class="mono">${esc(c.gstin)}</td>
-      <td class="mono">${esc(c.username)}</td>
-      <td><span class="mono" title="${esc(c.password)}">••••••</span></td>
-      <td><span class="badge ${c.returnFreq === 'Monthly' ? 'badge-blue' : 'badge-warning'}">${esc(c.returnFreq)}</span></td>
-      <td class="mono">₹${num(c.fees)}</td>
-      <td><span class="badge badge-neutral">${esc(c.feesFreq)}</span></td>
-      <td onclick="event.stopPropagation()">
-        <div class="action-btns">
-          <button class="btn btn-secondary btn-xs" onclick="openEditClient('${id}')">✏️</button>
-          <button class="btn btn-danger btn-xs" onclick="deleteClient('${id}')">🗑</button>
+  let totFees=0,totPaid=0,totOut=0;
+  rows.forEach(r=>{
+    totFees+=parseFloat(r.fees)||0;
+    totPaid+=parseFloat(r.feesPaid)||0;
+    totOut +=parseFloat(r.feesOutstanding)||0;
+  });
+
+  const dataRows=rows.map(r=>{
+    const out  =parseFloat(r.feesOutstanding)||0;
+    const paid =parseFloat(r.feesPaid)||0;
+    const fees =parseFloat(r.fees)||0;
+    const outCls=out>0?'out-red':paid>0&&out<=0?'paid-green':'zero-grey';
+    const trCls =out>0?'has-out':paid>0?'all-paid':'';
+    const g1   =r.gstr1 ||'Not Filed';
+    const g3b  =r.gstr3b||'Not Filed';
+    const rid  =esc(r.rowId);
+
+    // Build cells matching COLS order
+    const cells=[
+      // Client group
+      `<td class="grp-client-first" data-grp="client"><span class="name-cell">${esc(r.name)}</span></td>`,
+      `<td data-grp="client"><span class="gstin-cell">${esc(r.gstin)}</span></td>`,
+      `<td data-grp="client" class="mono" style="font-size:11px">${esc(r.username)||'—'}</td>`,
+      `<td data-grp="client"><span class="pwd-val">${esc(r.password)||'—'}</span></td>`,
+      // Returns group (period first per layout)
+      `<td class="c grp-ret-first" data-grp="ret"><span class="badge bg-neutral">${pLabel(r.periodKey)}</span></td>`,
+      // Fees group
+      `<td class="c grp-fees-first" data-grp="fees"><span class="badge ${r.returnFreq==='Monthly'?'bg-blue':'bg-orange'}">${esc(r.returnFreq)}</span></td>`,
+      `<td class="r mono" data-grp="fees">₹${num(fees)}</td>`,
+      `<td class="c" data-grp="fees"><span class="badge bg-neutral" style="font-size:9px">${esc(r.feesFreq)||'—'}</span></td>`,
+      `<td class="r" data-grp="fees" style="color:var(--success);font-family:'DM Mono',monospace">₹${num(paid)}</td>`,
+      `<td class="r ${outCls}" data-grp="fees">₹${num(out)}</td>`,
+      // Returns group continued
+      `<td class="c" data-grp="ret">
+        <span class="pill ${g1==='Filed'?'filed':'not-filed'}" onclick="cyclePill('${rid}','gstr1',this)">
+          ${g1==='Filed'?'✓ Filed':'✗ Not Filed'}
+        </span>
+      </td>`,
+      `<td class="c" data-grp="ret">
+        <span class="pill ${g3b==='Filed'?'filed':'not-filed'}" onclick="cyclePill('${rid}','gstr3b',this)">
+          ${g3b==='Filed'?'✓ Filed':'✗ Not Filed'}
+        </span>
+      </td>`,
+      // Actions
+      `<td class="c" data-grp="_act">
+        <div style="display:flex;gap:3px;justify-content:center">
+          <button class="btn btn-secondary btn-xs" onclick="openEditRow('${rid}')">✏️</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteRow('${rid}')">🗑</button>
         </div>
-      </td>
-    </tr>
-    <tr class="expand-row" id="expand-${id}" style="display:none">
-      <td colspan="9">
-        <div class="expand-content">
-          <div class="expand-field"><label>Date of Birth</label><p>${esc(c.dob) || '—'}</p></div>
-          <div class="expand-field"><label>Email ID</label><p>${esc(c.email) || '—'}</p></div>
-          <div class="expand-field"><label>Phone</label><p>${esc(c.phone) || '—'}</p></div>
-          <div class="expand-field"><label>GST Username</label><p class="mono">${esc(c.username) || '—'}</p></div>
-          <div class="expand-field"><label>GST Password</label><p class="mono">${esc(c.password) || '—'}</p></div>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
-}
+      </td>`
+    ];
 
-function toggleExpand(row, id) {
-  const expand = document.getElementById('expand-' + id);
-  const arrow = row.querySelector('td:first-child');
-  if (expand.style.display === 'none') {
-    expand.style.display = '';
-    arrow.textContent = '▼';
-  } else {
-    expand.style.display = 'none';
-    arrow.textContent = '▶';
-  }
-}
-
-function filterClients() {
-  const q = document.getElementById('clientSearch').value.toLowerCase();
-  const filtered = allClients.filter(c =>
-    (c.name||'').toLowerCase().includes(q) ||
-    (c.gstin||'').toLowerCase().includes(q)
-  );
-  renderClients(filtered);
-}
-
-// ── ADD / EDIT CLIENT ──
-function openAddClient() {
-  document.getElementById('editClientId').value = '';
-  document.getElementById('clientModalTitle').textContent = 'Add New Client';
-  ['fc_name','fc_gstin','fc_username','fc_password','fc_fees','fc_email','fc_phone'].forEach(id => document.getElementById(id).value = '');
-  ['fc_freq','fc_fees_freq'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('fc_dob').value = '';
-  openModal('clientModal');
-}
-
-function openEditClient(id) {
-  const c = allClients.find(x => String(x.id) === String(id));
-  if (!c) return;
-  document.getElementById('editClientId').value = id;
-  document.getElementById('clientModalTitle').textContent = 'Edit Client';
-  document.getElementById('fc_name').value = c.name || '';
-  document.getElementById('fc_gstin').value = c.gstin || '';
-  document.getElementById('fc_username').value = c.username || '';
-  document.getElementById('fc_password').value = c.password || '';
-  document.getElementById('fc_freq').value = c.returnFreq || '';
-  document.getElementById('fc_fees').value = c.fees || '';
-  document.getElementById('fc_fees_freq').value = c.feesFreq || '';
-  document.getElementById('fc_dob').value = c.dob || '';
-  document.getElementById('fc_email').value = c.email || '';
-  document.getElementById('fc_phone').value = c.phone || '';
-  openModal('clientModal');
-}
-
-async function saveClient() {
-  const id = document.getElementById('editClientId').value;
-  const data = {
-    id,
-    name: document.getElementById('fc_name').value.trim(),
-    gstin: document.getElementById('fc_gstin').value.trim().toUpperCase(),
-    username: document.getElementById('fc_username').value.trim(),
-    password: document.getElementById('fc_password').value.trim(),
-    returnFreq: document.getElementById('fc_freq').value,
-    fees: document.getElementById('fc_fees').value,
-    feesFreq: document.getElementById('fc_fees_freq').value,
-    dob: document.getElementById('fc_dob').value,
-    email: document.getElementById('fc_email').value.trim(),
-    phone: document.getElementById('fc_phone').value.trim()
-  };
-  if (!data.name || !data.gstin) { showToast('Name and GSTIN are required', 'error'); return; }
-  try {
-    const action = id ? 'updateClient' : 'addClient';
-    const res = await apiPost(action, { client: data });
-    if (res.success) {
-      closeModal('clientModal');
-      showToast(id ? 'Client updated' : 'Client added', 'success');
-      loadAll();
-    } else { showToast(res.message || 'Save failed', 'error'); }
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
-}
-
-async function deleteClient(id) {
-  if (!confirm('Delete this client? This cannot be undone.')) return;
-  try {
-    const res = await apiPost('deleteClient', { id });
-    if (res.success) { showToast('Client deleted', 'success'); loadAll(); }
-    else showToast(res.message || 'Delete failed', 'error');
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
-}
-
-// ──────────────────────────────────────────────
-// TAB 2: GST RETURN STATUS
-// ──────────────────────────────────────────────
-function getPeriods(freq) {
-  const now = new Date();
-  const periods = [];
-  if (freq === 'Monthly') {
-    for (let i = 0; i < 3; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      periods.push({
-        key: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,
-        label: d.toLocaleString('en-IN', { month: 'long', year: 'numeric' })
-      });
-    }
-  } else {
-    // Quarterly
-    const currQ = Math.floor(now.getMonth() / 3);
-    for (let i = 0; i < 3; i++) {
-      let q = currQ - i;
-      let y = now.getFullYear();
-      while (q < 0) { q += 4; y--; }
-      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      const start = q * 3;
-      const end = start + 2;
-      periods.push({
-        key: `${y}-Q${q+1}`,
-        label: `${months[start]} to ${months[end]} ${y}`
-      });
-    }
-  }
-  return periods;
-}
-
-function renderReturns(data) {
-  const rows = data || allReturns;
-  const tbody = document.getElementById('returnBody');
-  document.getElementById('returnCount').textContent = rows.length + ' Clients';
-
-  if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="icon">📋</div><p>No return data. Add clients first.</p></div></td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = rows.map(r => {
-    const periods = getPeriods(r.returnFreq);
-    const periodCells = periods.map((p, pi) => {
-      const rd = (r.periods || {})[p.key] || {};
-      return `
-      <td>
-        <div class="period-cell">
-          <div class="period-label">${p.label}</div>
-          <div style="margin-bottom:5px">
-            <div style="font-size:10px;color:var(--neutral-500);margin-bottom:2px">GSTR-1</div>
-            <select class="td-select" onchange="updateReturnStatus('${r.id}','${p.key}','gstr1',this.value,this)"
-              style="width:100%">
-              ${gstr1Opts(rd.gstr1||'Data Not Received')}
-            </select>
-          </div>
-          <div>
-            <div style="font-size:10px;color:var(--neutral-500);margin-bottom:2px">GSTR-3B</div>
-            <select class="td-select" onchange="updateReturnStatus('${r.id}','${p.key}','gstr3b',this.value,this)"
-              style="width:100%">
-              ${gstr3bOpts(rd.gstr3b||'Not Filed')}
-            </select>
-          </div>
-        </div>
-      </td>`;
+    // Apply visibility
+    const visibleCells=cells.map((cell,i)=>{
+      const col=COLS[i];
+      if(!col||col.group==='act') return cell;
+      if(!groupVis[col.group]) return cell.replace('<td','<td style="display:none"');
+      return cell;
     }).join('');
-    return `<tr>
-      <td><strong>${esc(r.name)}</strong></td>
-      <td><span class="badge ${r.returnFreq==='Monthly'?'badge-blue':'badge-warning'}">${esc(r.returnFreq)}</span></td>
-      ${periodCells}
-    </tr>`;
+
+    return `<tr class="${trCls}" data-rowid="${rid}">${visibleCells}</tr>`;
   }).join('');
+
+  // Total row
+  const totCells=COLS.map((col,i)=>{
+    const vis=col.group==='act'||groupVis[col.group]?'':'display:none;';
+    if(col.key==='name')           return `<td style="${vis}"><strong>📊 Total (${rows.length})</strong></td>`;
+    if(col.key==='fees')           return `<td class="r tot-row-mono" style="${vis}">₹${num(totFees)}</td>`;
+    if(col.key==='feesPaid')       return `<td class="r tot-row-mono" style="${vis}">₹${num(totPaid)}</td>`;
+    if(col.key==='feesOutstanding')return `<td class="r tot-row-mono" style="color:var(--danger);font-family:'DM Mono',monospace;${vis}">₹${num(totOut)}</td>`;
+    return `<td style="${vis}"></td>`;
+  }).join('');
+
+  tbody.innerHTML=dataRows+`<tr class="tot-row">${totCells}</tr>`;
 }
 
-function gstr1Opts(selected) {
-  return ['Data Not Received','Data Received','Filed'].map(v =>
-    `<option ${v===selected?'selected':''}>${v}</option>`).join('');
-}
-function gstr3bOpts(selected) {
-  return ['Not Filed','Filed'].map(v =>
-    `<option ${v===selected?'selected':''}>${v}</option>`).join('');
-}
-
-async function updateReturnStatus(clientId, period, field, value, el) {
-  const orig = el.dataset.orig || el.value;
-  el.disabled = true;
-  try {
-    const res = await apiPost('updateReturnStatus', { clientId, period, field, value });
-    if (res.success) {
-      showToast('Status updated', 'success');
-      el.dataset.orig = value;
-      // Update local data
-      const r = allReturns.find(x => String(x.id) === String(clientId));
-      if (r) { if (!r.periods) r.periods = {}; if (!r.periods[period]) r.periods[period] = {}; r.periods[period][field] = value; }
-    } else { showToast(res.message || 'Update failed', 'error'); el.value = orig; }
-  } catch(e) { showToast('Error: ' + e.message, 'error'); el.value = orig; }
-  el.disabled = false;
+// ── KPI UPDATE ──
+function updateKPIs(rows){
+  const totFees=rows.reduce((s,r)=>s+(parseFloat(r.fees)||0),0);
+  const totPaid=rows.reduce((s,r)=>s+(parseFloat(r.feesPaid)||0),0);
+  const totOut =rows.reduce((s,r)=>s+(parseFloat(r.feesOutstanding)||0),0);
+  const p1     =rows.filter(r=>(r.gstr1 ||'Not Filed')!=='Filed').length;
+  const p3b    =rows.filter(r=>(r.gstr3b||'Not Filed')!=='Filed').length;
+  document.getElementById('kFeesDue').textContent ='₹'+num(totFees);
+  document.getElementById('kFeesPaid').textContent='₹'+num(totPaid);
+  document.getElementById('kFeesOut').textContent ='₹'+num(totOut);
+  document.getElementById('kGstr1').textContent   =p1;
+  document.getElementById('kGstr3b').textContent  =p3b;
+  const pl=activePeriod==='all'?'All periods':pLabel(activePeriod);
+  document.getElementById('kPeriodLbl').textContent=pl;
+  document.getElementById('tableTitle').textContent=
+    'Client & Returns'+(activePeriod!=='all'?' — '+pLabel(activePeriod):'');
 }
 
-function filterReturns() {
-  const q = document.getElementById('returnSearch').value.toLowerCase();
-  const freq = document.getElementById('returnFreqFilter').value;
-  const filtered = allReturns.filter(r =>
-    (r.name||'').toLowerCase().includes(q) &&
-    (freq === '' || r.returnFreq === freq)
-  );
-  renderReturns(filtered);
+// ── STATUS PILL TOGGLE ──
+async function cyclePill(rowId,field,el){
+  const row=allRows.find(r=>r.rowId===rowId);
+  if(!row) return;
+  const cur=row[field]||'Not Filed';
+  const nxt=cur==='Filed'?'Not Filed':'Filed';
+  row[field]=nxt;
+  el.className='pill '+(nxt==='Filed'?'filed':'not-filed');
+  el.textContent=nxt==='Filed'?'✓ Filed':'✗ Not Filed';
+  try{
+    const res=await apiPost('updateField',{rowId,field,value:nxt});
+    if(!res.success){row[field]=cur;toast(res.message||'Update failed','err');applyFilters();}
+    else{ updateKPIs(allRows.filter(r=>activePeriod==='all'||r.periodKey===activePeriod)); toast('Saved','ok'); }
+  }catch(e){row[field]=cur;toast('Error: '+e.message,'err');applyFilters();}
 }
 
-// ──────────────────────────────────────────────
-// TAB 3: OUTSTANDING FEES
-// ──────────────────────────────────────────────
-function renderOutstanding(data) {
-  const rows = data || allOutstanding;
-  const tbody = document.getElementById('outBody');
-  document.getElementById('outCount').textContent = rows.length + ' Records';
-
-  // KPIs
-  const total = rows.reduce((s, r) => s + (parseFloat(r.amount)||0), 0);
-  const uniqueClients = new Set(rows.map(r => r.clientName)).size;
-  const sorted = [...rows].sort((a,b)=>(parseFloat(b.amount)||0)-(parseFloat(a.amount)||0));
-  document.getElementById('kpiTotal').textContent = '₹' + num(total);
-  document.getElementById('kpiClients').textContent = uniqueClients;
-  document.getElementById('kpiPeriods').textContent = rows.length;
-  if (sorted[0]) {
-    document.getElementById('kpiHighest').textContent = '₹' + num(sorted[0].amount);
-    document.getElementById('kpiHighestName').textContent = sorted[0].clientName;
-  } else {
-    document.getElementById('kpiHighest').textContent = '—';
-    document.getElementById('kpiHighestName').textContent = '—';
-  }
-
-  if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">💰</div><p>No outstanding fees. All clear!</p></div></td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = rows.map(r => `
-    <tr>
-      <td><strong>${esc(r.clientName)}</strong></td>
-      <td>${esc(r.period)}</td>
-      <td class="mono">₹${num(r.amount)}</td>
-      <td><span class="badge badge-danger">Outstanding</span></td>
-      <td class="mono">${r.paidAmount ? '₹'+num(r.paidAmount) : '—'}</td>
-      <td>${esc(r.payDate) || '—'}</td>
-      <td>${esc(r.payMode) || '—'}</td>
-      <td>
-        <div class="action-btns">
-          <button class="btn btn-success btn-xs" onclick="openPayment('${r.id}','${esc(r.clientName)}','${esc(r.period)}')">💳 Pay</button>
-          <button class="btn btn-secondary btn-xs" onclick="downloadPDF('${r.id}')">📄 PDF</button>
-        </div>
-      </td>
-    </tr>`).join('');
+// ── ADD / EDIT ROW ──
+function openAddRow(){
+  document.getElementById('editRowId').value='';
+  document.getElementById('modalTitle').textContent='Add New Entry';
+  const now=new Date();
+  document.getElementById('m_period').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  ['m_name','m_gstin','m_user','m_pass','m_fees','m_paid'].forEach(id=>document.getElementById(id).value='');
+  ['m_freq','m_feesfreq'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('m_gstr1').value='Not Filed';
+  document.getElementById('m_gstr3b').value='Not Filed';
+  document.getElementById('rowModal').classList.add('open');
 }
 
-function filterOutstanding() {
-  const q = document.getElementById('outSearch').value.toLowerCase();
-  const filtered = allOutstanding.filter(r => (r.clientName||'').toLowerCase().includes(q));
-  renderOutstanding(filtered);
+function openEditRow(rowId){
+  const r=allRows.find(x=>x.rowId===rowId);
+  if(!r){toast('Row not found','err');return;}
+  document.getElementById('editRowId').value =rowId;
+  document.getElementById('modalTitle').textContent='Edit Entry';
+  document.getElementById('m_name').value    =r.name||'';
+  document.getElementById('m_gstin').value   =r.gstin||'';
+  document.getElementById('m_user').value    =r.username||'';
+  document.getElementById('m_pass').value    =r.password||'';
+  document.getElementById('m_period').value  =r.periodKey||'';
+  document.getElementById('m_freq').value    =r.returnFreq||'';
+  document.getElementById('m_fees').value    =r.fees||'';
+  document.getElementById('m_feesfreq').value=r.feesFreq||'';
+  document.getElementById('m_paid').value    =r.feesPaid||'';
+  document.getElementById('m_gstr1').value   =r.gstr1||'Not Filed';
+  document.getElementById('m_gstr3b').value  =r.gstr3b||'Not Filed';
+  document.getElementById('rowModal').classList.add('open');
 }
 
-function openPayment(id, name, period) {
-  document.getElementById('payRecordId').value = id;
-  document.getElementById('payClientName').textContent = name;
-  document.getElementById('payPeriod').textContent = period;
-  document.getElementById('pay_amount').value = '';
-  document.getElementById('pay_date').value = '';
-  document.getElementById('pay_mode').value = '';
-  openModal('paymentModal');
+async function saveRow(){
+  const rowId =document.getElementById('editRowId').value;
+  const period=document.getElementById('m_period').value;
+  const name  =document.getElementById('m_name').value.trim();
+  const gstin =document.getElementById('m_gstin').value.trim().toUpperCase();
+  if(!period||!name||!gstin){toast('Period, Name and GSTIN are required','err');return;}
+  const data={
+    rowId, periodKey:period, name, gstin,
+    username :document.getElementById('m_user').value.trim(),
+    password :document.getElementById('m_pass').value.trim(),
+    returnFreq:document.getElementById('m_freq').value,
+    fees     :document.getElementById('m_fees').value||0,
+    feesFreq :document.getElementById('m_feesfreq').value,
+    feesPaid :document.getElementById('m_paid').value||0,
+    gstr1    :document.getElementById('m_gstr1').value,
+    gstr3b   :document.getElementById('m_gstr3b').value
+  };
+  try{
+    const res=await apiPost(rowId?'updateRow':'addRow',data);
+    if(res.success){closeModal();toast(rowId?'Updated':'Added','ok');loadData();}
+    else toast(res.message||'Save failed','err');
+  }catch(e){toast('Error: '+e.message,'err');}
 }
 
-async function savePayment() {
-  const id = document.getElementById('payRecordId').value;
-  const amount = document.getElementById('pay_amount').value;
-  const date = document.getElementById('pay_date').value;
-  const mode = document.getElementById('pay_mode').value;
-  if (!amount || !date || !mode) { showToast('All fields required', 'error'); return; }
-  try {
-    const res = await apiPost('updatePayment', { id, amount, date, mode });
-    if (res.success) {
-      closeModal('paymentModal');
-      showToast('Payment recorded & moved to Payment Received', 'success');
-      loadAll();
-    } else showToast(res.message || 'Save failed', 'error');
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+async function deleteRow(rowId){
+  if(!confirm('Delete this entry?')) return;
+  try{
+    const res=await apiPost('deleteRow',{rowId});
+    if(res.success){toast('Deleted','ok');loadData();}
+    else toast(res.message||'Delete failed','err');
+  }catch(e){toast('Error: '+e.message,'err');}
 }
 
-async function downloadPDF(id) {
-  showToast('Generating PDF…');
-  try {
-    const res = await apiGet('getPDFData', { id });
-    if (res.success) generatePDF(res.data);
-    else showToast(res.message || 'PDF failed', 'error');
-  } catch(e) { showToast('PDF error: ' + e.message, 'error'); }
-}
+// ── MODAL ──
+function closeModal(){document.getElementById('rowModal').classList.remove('open')}
+document.getElementById('rowModal').addEventListener('click',e=>{if(e.target===document.getElementById('rowModal'))closeModal();});
 
-function generatePDF(d) {
-  const html = `
-  <html><head><style>
-    body{font-family:Arial,sans-serif;padding:40px;color:#1e293b}
-    h1{font-size:22px;color:#1a56db;margin-bottom:4px}
-    .sub{color:#64748b;font-size:13px;margin-bottom:24px}
-    table{width:100%;border-collapse:collapse;margin-top:16px}
-    th{background:#f1f5f9;padding:10px;text-align:left;font-size:12px;border:1px solid #e2e8f0}
-    td{padding:10px;border:1px solid #e2e8f0;font-size:13px}
-    .total{font-weight:700;background:#e8f0fe}
-    .footer{margin-top:32px;font-size:12px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:16px}
-  </style></head><body>
-  <h1>GST Fees Ledger</h1>
-  <div class="sub">Generated on ${new Date().toLocaleDateString('en-IN')}</div>
-  <table>
-    <tr><th>Field</th><th>Details</th></tr>
-    <tr><td>Client Name</td><td>${esc(d.clientName)}</td></tr>
-    <tr><td>Outstanding Period</td><td>${esc(d.period)}</td></tr>
-    <tr><td>Fees Amount</td><td>₹${num(d.amount)}</td></tr>
-    <tr><td>Paid Amount</td><td>₹${num(d.paidAmount||0)}</td></tr>
-    <tr><td>Payment Date</td><td>${d.payDate||'—'}</td></tr>
-    <tr><td>Mode of Payment</td><td>${d.payMode||'—'}</td></tr>
-    <tr class="total"><td>Total Outstanding</td><td>₹${num((parseFloat(d.amount)||0)-(parseFloat(d.paidAmount)||0))}</td></tr>
-  </table>
-  <div class="footer">Regards,<br><strong>Kalpesh Sankhua</strong></div>
-  </body></html>`;
-  const w = window.open('','_blank');
-  w.document.write(html);
-  w.document.close();
-  setTimeout(() => w.print(), 500);
-}
-
-// ──────────────────────────────────────────────
-// TAB 4: PAYMENTS RECEIVED
-// ──────────────────────────────────────────────
-function renderPayments(data) {
-  const rows = data || allPayments;
-  const tbody = document.getElementById('payBody');
-  document.getElementById('payCount').textContent = rows.length + ' Records';
-  if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">✅</div><p>No payments recorded yet.</p></div></td></tr>`;
-    return;
-  }
-  tbody.innerHTML = rows.map(r => `
-    <tr>
-      <td><strong>${esc(r.clientName)}</strong></td>
-      <td>${esc(r.period)}</td>
-      <td class="mono">₹${num(r.amount)}</td>
-      <td class="mono">₹${num(r.paidAmount)}</td>
-      <td>${esc(r.payDate)}</td>
-      <td>${esc(r.payMode)}</td>
-      <td><span class="badge badge-success">Paid</span></td>
-    </tr>`).join('');
-}
-
-function filterPayments() {
-  const q = document.getElementById('paySearch').value.toLowerCase();
-  const filtered = allPayments.filter(r => (r.clientName||'').toLowerCase().includes(q));
-  renderPayments(filtered);
-}
-
-// ──────────────────────────────────────────────
-// MODAL HELPERS
-// ──────────────────────────────────────────────
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
-});
-
-// ──────────────────────────────────────────────
-// UTILITY
-// ──────────────────────────────────────────────
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function num(n) { return parseFloat(n||0).toLocaleString('en-IN'); }
-function togglePwd(id, btn) {
-  const el = document.getElementById(id);
-  el.type = el.type === 'password' ? 'text' : 'password';
-  btn.textContent = el.type === 'password' ? '👁' : '🙈';
-}
-
-// ──────────────────────────────────────────────
-// TOAST
-// ──────────────────────────────────────────────
-function showToast(msg, type = '') {
-  const div = document.createElement('div');
-  div.className = 'toast-item ' + type;
-  div.textContent = (type === 'success' ? '✅ ' : type === 'error' ? '❌ ' : 'ℹ️ ') + msg;
-  document.getElementById('toast').appendChild(div);
-  setTimeout(() => div.remove(), 3500);
+// ── HELPERS ──
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function num(n){return parseFloat(n||0).toLocaleString('en-IN',{maximumFractionDigits:2})}
+function toast(msg,type=''){
+  const d=document.createElement('div');
+  d.className='ti '+(type==='ok'?'ok':type==='err'?'err':'');
+  d.textContent=(type==='ok'?'✅ ':type==='err'?'❌ ':'ℹ️ ')+msg;
+  document.getElementById('toast').appendChild(d);
+  setTimeout(()=>d.remove(),3000);
 }
 </script>
 </body>
