@@ -232,6 +232,117 @@ tr.all-paid:hover td{background:#ecfdf5}
   .content{padding:10px 10px}
 }
 @media(max-width:400px){.kpi-row{grid-template-columns:1fr}}
+
+/* ══ CLIENT-WISE VIEW ══ */
+.cw-wrap{display:flex;flex-direction:column;gap:0}
+
+/* Client header row */
+.cw-client{
+  background:linear-gradient(90deg,var(--primary-dk) 0%,var(--primary) 100%);
+  color:#fff;padding:0;border-bottom:none;cursor:pointer;
+  user-select:none;
+}
+.cw-client-inner{
+  display:flex;align-items:center;gap:12px;padding:10px 14px;
+}
+.cw-client-toggle{
+  width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;flex-shrink:0;transition:transform .2s;
+}
+.cw-client-toggle.open{transform:rotate(90deg)}
+.cw-name{font-size:13px;font-weight:700;flex:1}
+.cw-gstin{font-size:10px;font-family:'DM Mono',monospace;opacity:.75;margin-left:4px}
+.cw-meta{display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap}
+.cw-badge-white{background:rgba(255,255,255,.18);color:#fff;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700}
+.cw-totals{display:flex;gap:14px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;flex-shrink:0}
+.cw-tot-due{color:rgba(255,255,255,.7)}
+.cw-tot-paid{color:#6ee7b7}
+.cw-tot-out{color:#fca5a5}
+.cw-tot-out.clear{color:#6ee7b7}
+
+/* Month rows under each client */
+.cw-months-wrap{border-bottom:2px solid var(--primary)}
+.cw-months-wrap.collapsed{display:none}
+.cw-month-row{
+  display:flex;align-items:center;gap:0;border-bottom:1px solid var(--n100);
+  font-size:12px;transition:background .1s;
+}
+.cw-month-row:last-child{border-bottom:none}
+.cw-month-row:hover{background:var(--n50)}
+.cw-month-row.out-bg{background:#fff8f8}
+.cw-month-row.out-bg:hover{background:#fef2f2}
+.cw-month-row.paid-bg{background:#f0fdf9}
+.cw-month-row.paid-bg:hover{background:#ecfdf5}
+
+/* Each cell in a month row */
+.cw-cell{padding:8px 10px;flex-shrink:0;display:flex;align-items:center}
+.cw-cell.period {width:110px;font-weight:600;color:var(--n700)}
+.cw-cell.retfreq{width:90px}
+.cw-cell.fees   {width:90px;justify-content:flex-end;font-family:'DM Mono',monospace;color:var(--n700)}
+.cw-cell.ffreq  {width:90px}
+.cw-cell.paid   {width:90px;justify-content:flex-end;font-family:'DM Mono',monospace;color:var(--success)}
+.cw-cell.out    {width:110px;justify-content:flex-end;font-family:'DM Mono',monospace;font-weight:700}
+.cw-cell.out.red{color:var(--danger)}
+.cw-cell.out.zero{color:var(--n400);font-weight:400}
+.cw-cell.gstr1  {width:100px;justify-content:center}
+.cw-cell.gstr3b {width:100px;justify-content:center}
+.cw-cell.acts   {width:70px;justify-content:center;gap:4px}
+.cw-cell.flex1  {flex:1}
+
+/* Client subtotal bar */
+.cw-subtotal{
+  display:flex;align-items:center;gap:0;background:var(--primary-lt);
+  border-top:1.5px solid #bfdbfe;border-bottom:none;
+  font-size:11px;font-weight:700;color:var(--primary-dk);
+}
+.cw-sub-cell{padding:6px 10px;flex-shrink:0;display:flex;align-items:center}
+.cw-sub-cell.label{flex:1;font-weight:700;color:var(--primary-dk)}
+.cw-sub-cell.num  {font-family:'DM Mono',monospace}
+.cw-sub-cell.out-total{font-family:'DM Mono',monospace;color:var(--danger);font-weight:700;width:110px;justify-content:flex-end}
+.cw-sub-cell.paid-total{font-family:'DM Mono',monospace;color:var(--success);width:90px;justify-content:flex-end}
+.cw-sub-cell.fees-total{font-family:'DM Mono',monospace;width:90px;justify-content:flex-end}
+
+/* CW Month header row (column labels) */
+.cw-col-hdr{
+  display:flex;align-items:center;gap:0;
+  background:var(--n50);border-bottom:2px solid var(--primary);
+  position:sticky;top:0;z-index:8;
+}
+.cw-col-hdr .cw-cell{
+  font-size:9px;font-weight:700;color:var(--n500);
+  text-transform:uppercase;letter-spacing:.05em;
+}
+
+/* View toggle */
+.view-toggle-wrap{display:flex;gap:2px;background:var(--n100);border:1.5px solid var(--n200);border-radius:7px;padding:2px}
+.vtbtn{padding:4px 12px;border:none;background:transparent;cursor:pointer;border-radius:5px;font-size:11px;font-weight:600;color:var(--n500);transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.vtbtn.active{background:var(--white);color:var(--primary);box-shadow:var(--sh1)}
+
+/* ══ COPY BUTTON ══ */
+.copy-wrap{display:inline-flex;align-items:center;gap:4px;max-width:100%}
+.copy-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--n700);word-break:break-all}
+.copybtn{
+  flex-shrink:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  width:20px;height:20px;border-radius:4px;
+  background:none;border:1px solid var(--n200);cursor:pointer;
+  color:var(--n400);font-size:11px;line-height:1;transition:all .15s;padding:0;
+}
+.copybtn:hover{background:var(--primary-lt);border-color:var(--primary);color:var(--primary)}
+.copybtn.copied{background:var(--success-lt);border-color:var(--success);color:var(--success)}
+
+/* client view copy button on dark header */
+.copybtn-dark{
+  flex-shrink:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:4px;
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+  cursor:pointer;color:rgba(255,255,255,.7);font-size:10px;line-height:1;
+  transition:all .15s;padding:0;
+}
+.copybtn-dark:hover{background:rgba(255,255,255,.3);color:#fff}
+.copybtn-dark.copied{background:rgba(110,231,183,.3);border-color:#6ee7b7;color:#6ee7b7}
 </style>
 </head>
 <body>
@@ -327,31 +438,33 @@ tr.all-paid:hover td{background:#ecfdf5}
     </select>
     <button class="btn btn-secondary btn-xs" onclick="clearFilters()" title="Clear all filters">✕ Clear</button>
 
-    <div class="sep"></div>
 
-    <!-- Column group toggles -->
-    <span class="tlbl">Columns</span>
-    <div class="group-toggles">
-      <span class="gtog client" id="tog-client" onclick="toggleGroup('client')" title="Toggle Client Details">
-        <span class="gtog-dot"></span>Client Details
-      </span>
-      <span class="gtog fees" id="tog-fees" onclick="toggleGroup('fees')" title="Toggle Fees">
-        <span class="gtog-dot"></span>Fees
-      </span>
-      <span class="gtog ret" id="tog-ret" onclick="toggleGroup('ret')" title="Toggle Returns">
-        <span class="gtog-dot"></span>Returns
-      </span>
-    </div>
   </div>
 
   <!-- ══ TABLE CARD ══ -->
   <div class="card">
     <div class="card-hdr">
-      <h3 id="tableTitle">Client &amp; Returns</h3>
-      <span class="badge bg-blue" id="rowCount">0 rows</span>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <h3 id="tableTitle">Client &amp; Returns</h3>
+        <span class="badge bg-blue" id="rowCount">0 rows</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <!-- Column group toggles (hidden in client view) -->
+        <div class="group-toggles" id="grpToggles">
+          <span class="tlbl" style="font-size:9px">Cols:</span>
+          <span class="gtog client" id="tog-client" onclick="toggleGroup('client')" title="Toggle Client Details"><span class="gtog-dot"></span>Client</span>
+          <span class="gtog fees" id="tog-fees" onclick="toggleGroup('fees')" title="Toggle Fees"><span class="gtog-dot"></span>Fees</span>
+          <span class="gtog ret" id="tog-ret" onclick="toggleGroup('ret')" title="Toggle Returns"><span class="gtog-dot"></span>Returns</span>
+        </div>
+        <!-- View toggle -->
+        <div class="view-toggle-wrap">
+          <button class="vtbtn active" id="vt-period" onclick="setMainView('period')">📅 Period View</button>
+          <button class="vtbtn" id="vt-client" onclick="setMainView('client')">👤 Client View</button>
+        </div>
+      </div>
     </div>
-    <!-- Scrollable container — header stays frozen via position:sticky inside it -->
-    <div class="tbl-outer" id="tblOuter">
+    <!-- Period view: normal table -->
+    <div class="tbl-outer" id="periodViewWrap">
       <table id="mainTable">
         <thead id="thead">
           <!-- Built by JS so group show/hide works -->
@@ -360,6 +473,10 @@ tr.all-paid:hover td{background:#ecfdf5}
           <tr class="loading-row"><td colspan="13"><span class="spin"></span>Loading…</td></tr>
         </tbody>
       </table>
+    </div>
+    <!-- Client view: grouped by client -->
+    <div id="clientViewWrap" style="display:none">
+      <div id="clientViewBody"></div>
     </div>
   </div>
 
@@ -419,6 +536,220 @@ let periods       = [];
 let activePeriod  = 'all';
 let activeKpi     = 'all';
 let groupVis      = { client: true, fees: true, ret: true };
+let mainView      = 'period';  // 'period' | 'client'
+let cwExpanded    = {};        // {gstin: true/false}  — expanded state per client
+
+// ── VIEW MODE ──
+function setMainView(v){
+  mainView = v;
+  document.getElementById('vt-period').classList.toggle('active', v==='period');
+  document.getElementById('vt-client').classList.toggle('active', v==='client');
+  document.getElementById('periodViewWrap').style.display = v==='period'?'':'none';
+  document.getElementById('clientViewWrap').style.display = v==='client'?'':'none';
+  document.getElementById('grpToggles').style.display     = v==='period'?'':'none';
+  if(v==='client') renderClientView(getFilteredRows());
+}
+
+function getFilteredRows(){
+  const q    =document.getElementById('srch').value.toLowerCase();
+  const freq =document.getElementById('fFreq').value;
+  const fFees=document.getElementById('fFees').value;
+  const fg1  =document.getElementById('fGstr1').value;
+  const fg3b =document.getElementById('fGstr3b').value;
+  return allRows.filter(r=>{
+    if(activePeriod!=='all'&&r.periodKey!==activePeriod) return false;
+    if(q&&!(r.name||'').toLowerCase().includes(q)&&!(r.gstin||'').toLowerCase().includes(q)) return false;
+    if(freq&&r.returnFreq!==freq) return false;
+    const out=parseFloat(r.feesOutstanding)||0;
+    if(fFees==='outstanding'&&out<=0) return false;
+    if(fFees==='paid'&&out>0) return false;
+    if(fg1&&(r.gstr1||'Not Filed')!==fg1) return false;
+    if(fg3b&&(r.gstr3b||'Not Filed')!==fg3b) return false;
+    return true;
+  });
+}
+
+// ── CLIENT-WISE VIEW ──
+function renderClientView(rows){
+  const wrap = document.getElementById('clientViewBody');
+  if(!rows.length){
+    wrap.innerHTML='<div class="empty-st"><div class="ico">📋</div><p>No records match the filter.</p></div>';
+    return;
+  }
+
+  // Group rows by GSTIN
+  const clientMap = {};
+  const clientOrder = [];
+  rows.forEach(r=>{
+    if(!clientMap[r.gstin]){
+      clientMap[r.gstin]={
+        gstin:r.gstin, name:r.name, username:r.username, password:r.password,
+        returnFreq:r.returnFreq, feesFreq:r.feesFreq, rows:[]
+      };
+      clientOrder.push(r.gstin);
+    }
+    clientMap[r.gstin].rows.push(r);
+  });
+
+  // Sort each client's rows by period newest first
+  clientOrder.forEach(g=>{
+    clientMap[g].rows.sort((a,b)=>b.periodKey.localeCompare(a.periodKey));
+  });
+
+  // Ensure all clients are expanded by default
+  clientOrder.forEach(g=>{ if(cwExpanded[g]===undefined) cwExpanded[g]=true; });
+
+  const col_hdr = `<div class="cw-col-hdr">
+    <div class="cw-cell period">Period</div>
+    <div class="cw-cell retfreq">Ret. Freq.</div>
+    <div class="cw-cell fees">Fees (₹)</div>
+    <div class="cw-cell ffreq">Fees Freq.</div>
+    <div class="cw-cell paid">Paid (₹)</div>
+    <div class="cw-cell out" style="width:110px;justify-content:flex-end">Outstanding</div>
+    <div class="cw-cell gstr1">GSTR-1</div>
+    <div class="cw-cell gstr3b">GSTR-3B</div>
+    <div class="cw-cell acts">Actions</div>
+  </div>`;
+
+  let html = col_hdr;
+
+  clientOrder.forEach(gstin=>{
+    const c   = clientMap[gstin];
+    const open= cwExpanded[gstin];
+
+    // Totals for this client
+    const totDue  = c.rows.reduce((s,r)=>s+(parseFloat(r.fees)||0),0);
+    const totPaid = c.rows.reduce((s,r)=>s+(parseFloat(r.feesPaid)||0),0);
+    const totOut  = c.rows.reduce((s,r)=>s+(parseFloat(r.feesOutstanding)||0),0);
+
+    // Client header row
+    html += `<div class="cw-client" onclick="cwToggle('${esc(gstin)}')">
+      <div class="cw-client-inner">
+        <div class="cw-client-toggle ${open?'open':''}">▶</div>
+        <div class="cw-name">${esc(c.name)}</div>
+        <div class="cw-gstin" style="display:inline-flex;align-items:center;gap:4px">${esc(gstin)}<button class="copybtn-dark" onclick="event.stopPropagation();copyText(gstin,this)" title="Copy GSTIN">⎘</button></div>
+        <div class="cw-meta">
+          <span class="cw-badge-white">${esc(c.returnFreq)||'—'}</span>
+          ${c.username?`<span class="cw-badge-white" style="font-family:'DM Mono',monospace;display:inline-flex;align-items:center;gap:4px">${esc(c.username)}<button class="copybtn-dark" onclick="event.stopPropagation();copyText('${esc(c.username).replace(/'/g,"\\'")}',this)" title="Copy username">⎘</button></span>`:''}
+          ${c.password?`<span class="cw-badge-white" style="font-family:'DM Mono',monospace;display:inline-flex;align-items:center;gap:4px">${esc(c.password)}<button class="copybtn-dark" onclick="event.stopPropagation();copyText('${esc(c.password).replace(/'/g,"\\'")}',this)" title="Copy password">⎘</button></span>`:''}
+        </div>
+        <div class="cw-totals">
+          <span class="cw-tot-due" title="Total Fees Due">Due: ₹${num(totDue)}</span>
+          <span class="cw-tot-paid" title="Total Paid">Paid: ₹${num(totPaid)}</span>
+          <span class="cw-tot-out ${totOut<=0?'clear':''}" title="Total Outstanding">
+            ${totOut>0?'₹'+num(totOut)+' outstanding':'✓ Clear'}
+          </span>
+          <span class="cw-badge-white">${c.rows.length} period${c.rows.length!==1?'s':''}</span>
+        </div>
+      </div>
+    </div>`;
+
+    // Month rows
+    html += `<div class="cw-months-wrap ${open?'':'collapsed'}" id="cwm-${esc(gstin)}">`;
+
+    c.rows.forEach(r=>{
+      const out  = parseFloat(r.feesOutstanding)||0;
+      const paid = parseFloat(r.feesPaid)||0;
+      const fees = parseFloat(r.fees)||0;
+      const g1   = r.gstr1 ||'Not Filed';
+      const g3b  = r.gstr3b||'Not Filed';
+      const rid  = esc(r.rowId);
+      const trBg = out>0?'out-bg':paid>0?'paid-bg':'';
+
+      html += `<div class="cw-month-row ${trBg}">
+        <div class="cw-cell period">
+          <span class="badge bg-neutral">${pLabel(r.periodKey)}</span>
+        </div>
+        <div class="cw-cell retfreq">
+          <span class="badge ${r.returnFreq==='Monthly'?'bg-blue':'bg-orange'}" style="font-size:9px">${esc(r.returnFreq)}</span>
+        </div>
+        <div class="cw-cell fees">₹${num(fees)}</div>
+        <div class="cw-cell ffreq">
+          <span class="badge bg-neutral" style="font-size:9px">${esc(r.feesFreq)||'—'}</span>
+        </div>
+        <div class="cw-cell paid">₹${num(paid)}</div>
+        <div class="cw-cell out ${out>0?'red':'zero'}">₹${num(out)}</div>
+        <div class="cw-cell gstr1">
+          <span class="pill ${g1==='Filed'?'filed':'not-filed'}" onclick="cyclePillCW('${rid}','gstr1',this)">
+            ${g1==='Filed'?'✓ Filed':'✗ Not Filed'}
+          </span>
+        </div>
+        <div class="cw-cell gstr3b">
+          <span class="pill ${g3b==='Filed'?'filed':'not-filed'}" onclick="cyclePillCW('${rid}','gstr3b',this)">
+            ${g3b==='Filed'?'✓ Filed':'✗ Not Filed'}
+          </span>
+        </div>
+        <div class="cw-cell acts">
+          <button class="btn btn-secondary btn-xs" onclick="openEditRow('${rid}')">✏️</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteRow('${rid}')">🗑</button>
+        </div>
+      </div>`;
+    });
+
+    // Client subtotal row
+    html += `<div class="cw-subtotal">
+      <div class="cw-sub-cell label" style="padding-left:46px">
+        📊 ${c.rows.length} period${c.rows.length!==1?'s':''} — ${esc(c.name)}
+      </div>
+      <div class="cw-sub-cell" style="width:90px"></div>
+      <div class="cw-sub-cell fees-total" style="justify-content:flex-end">₹${num(totDue)}</div>
+      <div class="cw-sub-cell" style="width:90px"></div>
+      <div class="cw-sub-cell paid-total" style="justify-content:flex-end">₹${num(totPaid)}</div>
+      <div class="cw-sub-cell out-total" style="justify-content:flex-end;color:${totOut>0?'var(--danger)':'var(--success)'}">₹${num(totOut)}</div>
+      <div style="width:100px"></div><div style="width:100px"></div><div style="width:70px"></div>
+    </div>`;
+
+    html += `</div>`; // close months-wrap
+  });
+
+  // Grand total row at very bottom
+  const gTotDue  = rows.reduce((s,r)=>s+(parseFloat(r.fees)||0),0);
+  const gTotPaid = rows.reduce((s,r)=>s+(parseFloat(r.feesPaid)||0),0);
+  const gTotOut  = rows.reduce((s,r)=>s+(parseFloat(r.feesOutstanding)||0),0);
+  html += `<div style="background:var(--primary);display:flex;align-items:center;gap:0;padding:9px 14px 9px 46px;border-top:2px solid var(--primary-dk)">
+    <div style="flex:1;font-size:12px;font-weight:700;color:#fff">
+      Grand Total — ${clientOrder.length} clients, ${rows.length} periods
+    </div>
+    <div style="width:90px"></div>
+    <div style="width:90px;text-align:right;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:rgba(255,255,255,.8)">₹${num(gTotDue)}</div>
+    <div style="width:90px"></div>
+    <div style="width:90px;text-align:right;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:#6ee7b7">₹${num(gTotPaid)}</div>
+    <div style="width:110px;text-align:right;font-family:'DM Mono',monospace;font-size:13px;font-weight:800;color:#fca5a5">₹${num(gTotOut)}</div>
+    <div style="width:100px"></div><div style="width:100px"></div><div style="width:70px"></div>
+  </div>`;
+
+  wrap.innerHTML = html;
+}
+
+function cwToggle(gstin){
+  cwExpanded[gstin] = !cwExpanded[gstin];
+  const mw = document.getElementById('cwm-'+gstin);
+  if(mw) mw.classList.toggle('collapsed', !cwExpanded[gstin]);
+  // Flip arrow
+  const clientDivs = document.querySelectorAll('.cw-client');
+  clientDivs.forEach(div=>{
+    if(div.getAttribute('onclick')===`cwToggle('${gstin}')`){
+      const tog = div.querySelector('.cw-client-toggle');
+      if(tog) tog.classList.toggle('open', cwExpanded[gstin]);
+    }
+  });
+}
+
+// Pill toggle for client view (no full re-render to preserve expand state)
+async function cyclePillCW(rowId, field, el){
+  const row = allRows.find(r=>r.rowId===rowId);
+  if(!row) return;
+  const cur = row[field]||'Not Filed';
+  const nxt = cur==='Filed'?'Not Filed':'Filed';
+  row[field] = nxt;
+  el.className = 'pill '+(nxt==='Filed'?'filed':'not-filed');
+  el.textContent = nxt==='Filed'?'✓ Filed':'✗ Not Filed';
+  try{
+    const res = await apiPost('updateField',{rowId,field,value:nxt});
+    if(!res.success){ row[field]=cur; toast(res.message||'Update failed','err'); }
+    else toast('Saved','ok');
+  }catch(e){ row[field]=cur; toast('Error: '+e.message,'err'); }
+}
 
 // ── COLUMN DEFINITIONS ──
 // order: Client Name | GSTIN | Username | Password | Period | Ret.Freq | Fees | Fees Freq | Paid | Outstanding | GSTR-1 | GSTR-3B | Actions
@@ -582,6 +913,7 @@ function applyFilters(){
   rows.sort((a,b)=>(a.periodKey||'').localeCompare(b.periodKey||'')||(a.name||'').localeCompare(b.name||''));
   renderTable(rows);
   updateKPIs(rows);
+  if(mainView==='client') renderClientView(rows);
 }
 
 function clearFilters(){
@@ -692,9 +1024,24 @@ function renderTable(rows){
     const cells=[
       // Client group
       `<td class="grp-client-first" data-grp="client"><span class="name-cell">${esc(r.name)}</span></td>`,
-      `<td data-grp="client"><span class="gstin-cell">${esc(r.gstin)}</span></td>`,
-      `<td data-grp="client" class="mono" style="font-size:11px">${esc(r.username)||'—'}</td>`,
-      `<td data-grp="client"><span class="pwd-val">${esc(r.password)||'—'}</span></td>`,
+      `<td data-grp="client">
+        <div class="copy-wrap">
+          <span class="gstin-cell">${esc(r.gstin)}</span>
+          ${r.gstin?`<button class="copybtn" onclick="copyText('${esc(r.gstin).replace(/'/g,"\\'")}',this)" title="Copy GSTIN">⎘</button>`:''}
+        </div>
+      </td>`,
+      `<td data-grp="client">
+        <div class="copy-wrap">
+          <span class="copy-val">${esc(r.username)||'—'}</span>
+          ${r.username?`<button class="copybtn" onclick="copyText('${esc(r.username).replace(/'/g,"\\'")}',this)" title="Copy username">⎘</button>`:''}
+        </div>
+      </td>`,
+      `<td data-grp="client">
+        <div class="copy-wrap">
+          <span class="copy-val">${esc(r.password)||'—'}</span>
+          ${r.password?`<button class="copybtn" onclick="copyText('${esc(r.password).replace(/'/g,"\\'")}',this)" title="Copy password">⎘</button>`:''}
+        </div>
+      </td>`,
       // Returns group (period first per layout)
       `<td class="c grp-ret-first" data-grp="ret"><span class="badge bg-neutral">${pLabel(r.periodKey)}</span></td>`,
       // Fees group
@@ -859,6 +1206,28 @@ function toast(msg,type=''){
   d.textContent=(type==='ok'?'✅ ':type==='err'?'❌ ':'ℹ️ ')+msg;
   document.getElementById('toast').appendChild(d);
   setTimeout(()=>d.remove(),3000);
+}
+
+// ── COPY TO CLIPBOARD ──
+function copyText(val, btn) {
+  if (!val || val === '—') return;
+  navigator.clipboard.writeText(val).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+  }).catch(() => {
+    // Fallback for older browsers
+    const ta = document.createElement('textarea');
+    ta.value = val; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const orig = btn.textContent;
+    btn.textContent = '✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+  });
 }
 </script>
 </body>
