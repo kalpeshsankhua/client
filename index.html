@@ -240,7 +240,7 @@ tr.all-paid:hover td{background:#ecfdf5}
 .cw-client{
   background:linear-gradient(90deg,var(--primary-dk) 0%,var(--primary) 100%);
   color:#fff;padding:0;border-bottom:none;cursor:pointer;
-  user-select:none;
+  user-select:none;border-radius:8px 8px 0 0;margin-top:8px;
 }
 .cw-client-inner{
   display:flex;align-items:center;gap:12px;padding:10px 14px;
@@ -251,18 +251,18 @@ tr.all-paid:hover td{background:#ecfdf5}
   font-size:11px;flex-shrink:0;transition:transform .2s;
 }
 .cw-client-toggle.open{transform:rotate(90deg)}
-.cw-name{font-size:13px;font-weight:700;flex:1}
+.cw-name{font-size:13px;font-weight:700;flex:0 0 auto}
 .cw-gstin{font-size:10px;font-family:'DM Mono',monospace;opacity:.75;margin-left:4px}
-.cw-meta{display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap}
+.cw-meta{display:flex;gap:8px;align-items:center;flex:1;flex-wrap:wrap}
 .cw-badge-white{background:rgba(255,255,255,.18);color:#fff;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700}
-.cw-totals{display:flex;gap:14px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;flex-shrink:0}
+.cw-totals{display:flex;gap:14px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;flex:0 0 auto}
 .cw-tot-due{color:rgba(255,255,255,.7)}
 .cw-tot-paid{color:#6ee7b7}
 .cw-tot-out{color:#fca5a5;font-size:14px;font-weight:800;letter-spacing:.01em}
 .cw-tot-out.clear{color:#6ee7b7;font-size:14px;font-weight:800}
 
 /* Month rows under each client */
-.cw-months-wrap{border-bottom:2px solid var(--primary)}
+.cw-months-wrap{border-bottom:none;margin-bottom:10px;border:1px solid var(--n200);border-top:none;border-radius:0 0 8px 8px;overflow:hidden}
 .cw-months-wrap.collapsed{display:none}
 .cw-month-row{
   display:flex;align-items:center;gap:0;border-bottom:1px solid var(--n100);
@@ -306,8 +306,8 @@ tr.all-paid:hover td{background:#ecfdf5}
 /* CW Month header row (column labels) */
 .cw-col-hdr{
   display:flex;align-items:center;gap:0;
-  background:var(--n50);border-bottom:2px solid var(--primary);
-  position:sticky;top:0;z-index:8;
+  background:var(--n100);border-bottom:1.5px solid var(--primary);
+  border-top:none;
 }
 .cw-col-hdr .cw-cell{
   font-size:9px;font-weight:700;color:var(--n500);
@@ -641,7 +641,7 @@ function renderClientView(rows){
     <div class="cw-cell acts">Actions</div>
   </div>`;
 
-  let html = col_hdr;
+  let html = '';
 
   clientOrder.forEach(gstin=>{
     const c   = clientMap[gstin];
@@ -657,12 +657,6 @@ function renderClientView(rows){
       <div class="cw-client-inner">
         <div class="cw-client-toggle ${open?'open':''}">▶</div>
         <div class="cw-name">${esc(c.name)}</div>
-        <div class="cw-gstin" style="display:inline-flex;align-items:center;gap:4px">${esc(gstin)}<button class="copybtn-dark" onclick="event.stopPropagation();copyText(gstin,this)" title="Copy GSTIN">⎘</button></div>
-        <div class="cw-meta">
-          <span class="cw-badge-white">${esc(c.returnFreq)||'—'}</span>
-          ${c.username?`<span class="cw-badge-white" style="font-family:'DM Mono',monospace;display:inline-flex;align-items:center;gap:4px">${esc(c.username)}<button class="copybtn-dark" onclick="event.stopPropagation();copyText('${esc(c.username).replace(/'/g,"\\'")}',this)" title="Copy username">⎘</button></span>`:''}
-          ${c.password?`<span class="cw-badge-white" style="font-family:'DM Mono',monospace;display:inline-flex;align-items:center;gap:4px">${esc(c.password)}<button class="copybtn-dark" onclick="event.stopPropagation();copyText('${esc(c.password).replace(/'/g,"\\'")}',this)" title="Copy password">⎘</button></span>`:''}
-        </div>
         <div class="cw-totals">
           <span class="cw-tot-due" title="Total Fees Due">Due: ₹${num(totDue)}</span>
           <span class="cw-tot-paid" title="Total Paid">Paid: ₹${num(totPaid)}</span>
@@ -671,11 +665,18 @@ function renderClientView(rows){
           </span>
           <span class="cw-badge-white">${c.rows.length} period${c.rows.length!==1?'s':''}</span>
         </div>
+        <div class="cw-gstin" style="display:inline-flex;align-items:center;gap:4px">${esc(gstin)}<button class="copybtn-dark" onclick="event.stopPropagation();copyText(gstin,this)" title="Copy GSTIN">⎘</button></div>
+        <div class="cw-meta">
+          <span class="cw-badge-white">${esc(c.returnFreq)||'—'}</span>
+          ${c.username?`<span class="cw-badge-white" style="font-family:'DM Mono',monospace;display:inline-flex;align-items:center;gap:4px">${esc(c.username)}<button class="copybtn-dark" onclick="event.stopPropagation();copyText('${esc(c.username).replace(/'/g,"\\'")}',this)" title="Copy username">⎘</button></span>`:''}
+          ${c.password?`<span class="cw-badge-white" style="font-family:'DM Mono',monospace;display:inline-flex;align-items:center;gap:4px">${esc(c.password)}<button class="copybtn-dark" onclick="event.stopPropagation();copyText('${esc(c.password).replace(/'/g,"\\'")}',this)" title="Copy password">⎘</button></span>`:''}
+        </div>
       </div>
     </div>`;
 
     // Month rows
     html += `<div class="cw-months-wrap ${open?'':'collapsed'}" id="cwm-${esc(gstin)}">`;
+    html += col_hdr;
 
     c.rows.forEach(r=>{
       const out  = parseFloat(r.feesOutstanding)||0;
