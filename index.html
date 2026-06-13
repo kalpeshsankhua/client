@@ -258,8 +258,8 @@ tr.all-paid:hover td{background:#ecfdf5}
 .cw-totals{display:flex;gap:14px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;flex-shrink:0}
 .cw-tot-due{color:rgba(255,255,255,.7)}
 .cw-tot-paid{color:#6ee7b7}
-.cw-tot-out{color:#fca5a5}
-.cw-tot-out.clear{color:#6ee7b7}
+.cw-tot-out{color:#fca5a5;font-size:14px;font-weight:800;letter-spacing:.01em}
+.cw-tot-out.clear{color:#6ee7b7;font-size:14px;font-weight:800}
 
 /* Month rows under each client */
 .cw-months-wrap{border-bottom:2px solid var(--primary)}
@@ -362,6 +362,7 @@ tr.all-paid:hover td{background:#ecfdf5}
       <span id="syncLbl" class="sync-label">—</span>
     </div>
     <button class="btn btn-secondary btn-sm" onclick="syncNow()">🔄 Sync</button>
+    <button class="btn btn-secondary btn-sm" onclick="openAddMonth()" style="background:#f0fdf9;border-color:#6ee7b7;color:#065f46">＋ Add Month</button>
     <button class="btn btn-primary btn-sm" onclick="openAddRow()">+ Add Entry</button>
   </div>
 </header>
@@ -521,6 +522,35 @@ tr.all-paid:hover td{background:#ecfdf5}
     <div class="mfooter">
       <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveRow()">💾 Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: ADD NEW MONTH (BULK) ══ -->
+<div class="overlay" id="addMonthModal">
+  <div class="modal" style="max-width:560px">
+    <div class="mhdr">
+      <h4>📅 Add New Month for All Clients</h4>
+      <button class="mclose" onclick="closeAddMonthModal()">×</button>
+    </div>
+    <div class="mbody">
+      <div class="fg" style="margin-bottom:14px">
+        <label>New Month / Period *</label>
+        <input type="month" id="am_period" style="font-size:14px;font-weight:600">
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--n500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">
+        Clients to be added <span id="am_count" style="color:var(--primary)"></span>
+      </div>
+      <div id="am_client_list" style="max-height:320px;overflow-y:auto;border:1px solid var(--n200);border-radius:8px;background:var(--n50)">
+        <!-- filled by JS -->
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--n500);font-style:italic">
+        ℹ️ Each client's fees, frequency & credentials are copied from their latest entry. Paid = ₹0, Status = Not Filed.
+      </div>
+    </div>
+    <div class="mfooter">
+      <button class="btn btn-secondary" onclick="closeAddMonthModal()">Cancel</button>
+      <button class="btn btn-primary" id="am_save_btn" onclick="saveNewMonth()">💾 Add Month for All</button>
     </div>
   </div>
 </div>
@@ -685,6 +715,15 @@ function renderClientView(rows){
         </div>
       </div>`;
     });
+
+    // Add Month button row
+    html += `<div class="cw-month-row" style="background:var(--n50);border-top:1px dashed var(--n200)">
+      <div style="padding:7px 14px;flex:1">
+        <button class="btn btn-primary btn-xs" onclick="openAddMonthForClient('${esc(gstin)}','${esc(c.name)}')" style="gap:4px">
+          ＋ Add Month
+        </button>
+      </div>
+    </div>`;
 
     // Client subtotal row
     html += `<div class="cw-subtotal">
@@ -1126,6 +1165,155 @@ async function cyclePill(rowId,field,el){
     if(!res.success){row[field]=cur;toast(res.message||'Update failed','err');applyFilters();}
     else{ updateKPIs(allRows.filter(r=>activePeriod==='all'||r.periodKey===activePeriod)); toast('Saved','ok'); }
   }catch(e){row[field]=cur;toast('Error: '+e.message,'err');applyFilters();}
+}
+
+// ── ADD MONTH (BULK — all clients) ──
+function openAddMonth(){
+  // Find next period after latest in allRows
+  let nextPeriod = '';
+  if(allRows.length){
+    const latest = [...allRows].sort((a,b)=>b.periodKey.localeCompare(a.periodKey))[0];
+    if(latest.periodKey){
+      const [y,m] = latest.periodKey.split('-').map(Number);
+      const d = new Date(y, m, 1);
+      nextPeriod = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    }
+  }
+  if(!nextPeriod){
+    const now = new Date();
+    nextPeriod = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  }
+  document.getElementById('am_period').value = nextPeriod;
+  buildAddMonthClientList();
+  document.getElementById('addMonthModal').classList.add('open');
+}
+
+function buildAddMonthClientList(){
+  // Get unique clients by GSTIN, use their latest row for defaults
+  const clientMap = {};
+  allRows.forEach(r=>{
+    if(!clientMap[r.gstin] || r.periodKey > clientMap[r.gstin].periodKey){
+      clientMap[r.gstin] = r;
+    }
+  });
+  const clients = Object.values(clientMap).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  document.getElementById('am_count').textContent = '('+clients.length+' clients)';
+
+  const list = document.getElementById('am_client_list');
+  if(!clients.length){
+    list.innerHTML='<div style="padding:20px;text-align:center;color:var(--n400)">No clients found.</div>';
+    return;
+  }
+
+  list.innerHTML = clients.map((r,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:${i<clients.length-1?'1px solid var(--n200)':'none'};background:var(--white)">
+      <input type="checkbox" id="amc_${i}" value="${esc(r.gstin)}" checked
+        style="width:15px;height:15px;accent-color:var(--primary);flex-shrink:0;cursor:pointer">
+      <label for="amc_${i}" style="flex:1;cursor:pointer">
+        <div style="font-size:12px;font-weight:600;color:var(--n800)">${esc(r.name)}</div>
+        <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--n500)">${esc(r.gstin)}</div>
+      </label>
+      <div style="font-size:11px;color:var(--n500);text-align:right;flex-shrink:0">
+        <span style="font-family:'DM Mono',monospace;font-weight:600;color:var(--n700)">₹${num(r.fees||0)}</span>
+        <span style="margin-left:5px;font-size:10px;color:var(--n400)">${esc(r.returnFreq||'—')}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function closeAddMonthModal(){
+  document.getElementById('addMonthModal').classList.remove('open');
+}
+document.getElementById('addMonthModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('addMonthModal')) closeAddMonthModal();
+});
+
+async function saveNewMonth(){
+  const period = document.getElementById('am_period').value;
+  if(!period){ toast('Please select a period','err'); return; }
+
+  // Collect checked GSTINs
+  const checked = [...document.querySelectorAll('#am_client_list input[type=checkbox]:checked')].map(cb=>cb.value);
+  if(!checked.length){ toast('Select at least one client','err'); return; }
+
+  // Check if period already exists for any client
+  const existing = checked.filter(gstin => allRows.some(r=>r.gstin===gstin && r.periodKey===period));
+  if(existing.length){
+    const names = existing.map(g=>{ const r=allRows.find(x=>x.gstin===g); return r?r.name:g; }).join(', ');
+    if(!confirm(`${existing.length} client(s) already have an entry for this period:\n${names}\n\nContinue adding the rest?`)) return;
+  }
+
+  // Build rows to add (skip already-existing)
+  const toAdd = checked.filter(gstin=>!allRows.some(r=>r.gstin===gstin && r.periodKey===period));
+  if(!toAdd.length){ toast('All selected clients already have this period','err'); return; }
+
+  const btn = document.getElementById('am_save_btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Adding…';
+
+  // Build latest client data map
+  const clientMap = {};
+  allRows.forEach(r=>{
+    if(!clientMap[r.gstin] || r.periodKey > clientMap[r.gstin].periodKey) clientMap[r.gstin]=r;
+  });
+
+  let successCount = 0, failCount = 0;
+  for(const gstin of toAdd){
+    const src = clientMap[gstin]||{};
+    const data = {
+      rowId:'', periodKey:period,
+      name:src.name||'', gstin,
+      username:src.username||'', password:src.password||'',
+      returnFreq:src.returnFreq||'', fees:src.fees||0,
+      feesFreq:src.feesFreq||'', feesPaid:0,
+      gstr1:'Not Filed', gstr3b:'Not Filed'
+    };
+    try{
+      const res = await apiPost('addRow', data);
+      if(res.success) successCount++;
+      else failCount++;
+    }catch(e){ failCount++; }
+  }
+
+  btn.disabled = false;
+  btn.textContent = '💾 Add Month for All';
+  closeAddMonthModal();
+  toast(`✅ Added ${successCount} client${successCount!==1?'s':''} for ${pLabel(period)}`+(failCount?` (${failCount} failed)`:''), successCount?'ok':'err');
+  loadData();
+}
+
+// ── ADD MONTH FOR SPECIFIC CLIENT ──
+function openAddMonthForClient(gstin, name){
+  // Pre-fill modal with this client's data
+  const clientRows = allRows.filter(r=>r.gstin===gstin);
+  const latest = clientRows.sort((a,b)=>b.periodKey.localeCompare(a.periodKey))[0]||{};
+
+  document.getElementById('editRowId').value='';
+  document.getElementById('modalTitle').textContent='Add Month — '+name;
+
+  // Auto-advance period by 1 month from latest
+  let nextPeriod = '';
+  if(latest.periodKey){
+    const [y,m] = latest.periodKey.split('-').map(Number);
+    const d = new Date(y, m, 1); // next month
+    nextPeriod = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+  } else {
+    const now = new Date();
+    nextPeriod = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  }
+
+  document.getElementById('m_period').value  = nextPeriod;
+  document.getElementById('m_name').value    = name;
+  document.getElementById('m_gstin').value   = gstin;
+  document.getElementById('m_user').value    = latest.username||'';
+  document.getElementById('m_pass').value    = latest.password||'';
+  document.getElementById('m_freq').value    = latest.returnFreq||'';
+  document.getElementById('m_fees').value    = latest.fees||'';
+  document.getElementById('m_feesfreq').value= latest.feesFreq||'';
+  document.getElementById('m_paid').value    = '';
+  document.getElementById('m_gstr1').value   = 'Not Filed';
+  document.getElementById('m_gstr3b').value  = 'Not Filed';
+  document.getElementById('rowModal').classList.add('open');
 }
 
 // ── ADD / EDIT ROW ──
