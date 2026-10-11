@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GST Tracker — K World Tax Advisor's</title>
+<title>GST Client Tracker — K World Tax Advisor's</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -351,6 +351,14 @@ tr.all-paid:hover td{background:#ecfdf5}
 }
 .copybtn-dark:hover{background:rgba(255,255,255,.3);color:#fff}
 .copybtn-dark.copied{background:rgba(110,231,183,.3);border-color:#6ee7b7;color:#6ee7b7}
+
+/* ══ DETAILS TABLE ══ */
+.dt{min-width:860px}
+.dt thead th{background:var(--primary);color:#fff;padding:9px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;text-align:left;white-space:nowrap;border-bottom:none}
+.dt thead th.r{text-align:right}.dt thead th.c{text-align:center}
+.dt tbody td{padding:9px 12px}
+.sno{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:22px;padding:0 6px;border-radius:11px;background:var(--n100);color:var(--n600);font-size:10px;font-weight:700;font-family:'DM Mono',monospace}
+.cw-sno{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:22px;padding:0 6px;border-radius:11px;background:rgba(255,255,255,.2);color:#fff;font-size:10px;font-weight:700;font-family:'DM Mono',monospace}
 </style>
 </head>
 <body>
@@ -413,14 +421,7 @@ tr.all-paid:hover td{background:#ecfdf5}
 
   <!-- ══ TOOLBAR ══ -->
   <div class="toolbar">
-    <!-- Period filter -->
-    <span class="tlbl">📅 Period</span>
-    <div class="period-strip" id="periodStrip">
-      <span class="pchip all-chip active" onclick="selectPeriod('all',this)">All</span>
-    </div>
-
-    <div class="sep"></div>
-
+    
     <!-- Search & filters -->
     <div class="sbox">
       <span style="color:var(--n400)">🔍</span>
@@ -454,20 +455,13 @@ tr.all-paid:hover td{background:#ecfdf5}
   <div class="card">
     <div class="card-hdr">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <h3 id="tableTitle">Client &amp; Returns</h3>
+        <h3 id="tableTitle">Client Details</h3>
         <span class="badge bg-blue" id="rowCount">0 rows</span>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <!-- Column group toggles (hidden in client view) -->
-        <div class="group-toggles" id="grpToggles">
-          <span class="tlbl" style="font-size:9px">Cols:</span>
-          <span class="gtog client" id="tog-client" onclick="toggleGroup('client')" title="Toggle Client Details"><span class="gtog-dot"></span>Client</span>
-          <span class="gtog fees" id="tog-fees" onclick="toggleGroup('fees')" title="Toggle Fees"><span class="gtog-dot"></span>Fees</span>
-          <span class="gtog ret" id="tog-ret" onclick="toggleGroup('ret')" title="Toggle Returns"><span class="gtog-dot"></span>Returns</span>
-        </div>
-        <!-- View toggle -->
+                <!-- View toggle -->
         <div class="view-toggle-wrap">
-          <button class="vtbtn active" id="vt-period" onclick="setMainView('period')">📅 Period View</button>
+          <button class="vtbtn active" id="vt-details" onclick="setMainView('details')">📋 Client Details</button>
           <button class="vtbtn" id="vt-client" onclick="setMainView('client')">👤 Client View</button>
         </div>
         <!-- Download Image — only shown in client view -->
@@ -475,14 +469,20 @@ tr.all-paid:hover td{background:#ecfdf5}
       </div>
     </div>
     <!-- Period view: normal table -->
-    <div class="tbl-outer" id="periodViewWrap">
-      <table id="mainTable">
-        <thead id="thead">
-          <!-- Built by JS so group show/hide works -->
-        </thead>
-        <tbody id="tbody">
-          <tr class="loading-row"><td colspan="13"><span class="spin"></span>Loading…</td></tr>
-        </tbody>
+    <div class="tbl-outer" id="detailsViewWrap">
+      <table class="dt" id="detailsTable">
+        <thead><tr>
+          <th class="c" style="width:50px">S.No</th>
+          <th>Client Name</th>
+          <th>GSTIN</th>
+          <th>Username</th>
+          <th>Password</th>
+          <th class="c">Ret. Freq.</th>
+          <th class="r">Fees (₹)</th>
+          <th class="r">Outstanding (₹)</th>
+          <th class="c"></th>
+        </tr></thead>
+        <tbody id="dbody"><tr><td colspan="9" class="empty-st"><span class="spin"></span>Loading…</td></tr></tbody>
       </table>
     </div>
     <!-- Client view: grouped by client -->
@@ -502,7 +502,7 @@ tr.all-paid:hover td{background:#ecfdf5}
       <button class="mclose" onclick="closeModal()">×</button>
     </div>
     <div class="mbody">
-      <input type="hidden" id="editRowId">
+      <input type="hidden" id="editRowId"><input type="hidden" id="editClientG">
       <div class="fg2">
         <div class="fg"><label>Client Name *</label><input id="m_name" placeholder="e.g. ABC Traders"></div>
         <div class="fg"><label>GSTIN *</label><input id="m_gstin" placeholder="27AAABB1234C1Z5" style="text-transform:uppercase"></div>
@@ -576,18 +576,18 @@ let periods       = [];
 let activePeriod  = 'all';
 let activeKpi     = 'all';
 let groupVis      = { client: true, fees: true, ret: true };
-let mainView      = 'period';  // 'period' | 'client'
+let mainView      = 'details';  // 'details' | 'client'
 let cwExpanded    = {};        // {gstin: true/false}  — expanded state per client
 
 // ── VIEW MODE ──
 function setMainView(v){
   mainView = v;
-  document.getElementById('vt-period').classList.toggle('active', v==='period');
+  document.getElementById('vt-details').classList.toggle('active', v==='details');
   document.getElementById('vt-client').classList.toggle('active', v==='client');
-  document.getElementById('periodViewWrap').style.display = v==='period'?'':'none';
-  document.getElementById('clientViewWrap').style.display = v==='client'?'':'none';
-  document.getElementById('grpToggles').style.display     = v==='period'?'':'none';
-  document.getElementById('dlImgBtn').style.display       = v==='client'?'':'none';
+  document.getElementById('detailsViewWrap').style.display = v==='details'?'':'none';
+  document.getElementById('clientViewWrap').style.display  = v==='client'?'':'none';
+  document.getElementById('dlImgBtn').style.display        = v==='client'?'':'none';
+  document.getElementById('tableTitle').textContent        = v==='client'?'Client View':'Client Details';
   if(v==='client') renderClientView(getFilteredRows());
 }
 
@@ -613,8 +613,10 @@ function getFilteredRows(){
 // ── CLIENT-WISE VIEW ──
 function renderClientView(rows){
   const wrap = document.getElementById('clientViewBody');
+  // Client View lists only months with outstanding fees; cleared months/clients are hidden
+  rows = rows.filter(r=>(parseFloat(r.feesOutstanding)||0)>0);
   if(!rows.length){
-    wrap.innerHTML='<div class="empty-st"><div class="ico">📋</div><p>No records match the filter.</p></div>';
+    wrap.innerHTML='<div class="empty-st"><div class="ico">✅</div><p>No outstanding fees.</p></div>';
     return;
   }
 
@@ -632,6 +634,7 @@ function renderClientView(rows){
     clientMap[r.gstin].rows.push(r);
   });
 
+  clientOrder.sort((a,b)=>(clientMap[a].name||'').localeCompare(clientMap[b].name||''));
   // Sort each client's rows by period newest first
   clientOrder.forEach(g=>{
     clientMap[g].rows.sort((a,b)=>b.periodKey.localeCompare(a.periodKey));
@@ -654,7 +657,7 @@ function renderClientView(rows){
 
   let html = '';
 
-  clientOrder.forEach(gstin=>{
+  clientOrder.forEach((gstin,idx)=>{
     const c   = clientMap[gstin];
     const open= cwExpanded[gstin];
 
@@ -666,6 +669,7 @@ function renderClientView(rows){
     // Client header row
     html += `<div class="cw-client" onclick="cwToggle('${esc(gstin)}')">
       <div class="cw-client-inner">
+        <div class="cw-sno">${idx+1}</div>
         <div class="cw-client-toggle ${open?'open':''}">▶</div>
         <div class="cw-name">${esc(c.name)}</div>
         <div class="cw-totals">
@@ -676,7 +680,7 @@ function renderClientView(rows){
           </span>
           <span class="cw-badge-white">${c.rows.length} period${c.rows.length!==1?'s':''}</span>
         </div>
-        <div class="cw-gstin" style="display:inline-flex;align-items:center;gap:4px">${esc(gstin)}<button class="copybtn-dark" onclick="event.stopPropagation();copyText(gstin,this)" title="Copy GSTIN">⎘</button></div>
+        <div class="cw-gstin" style="display:inline-flex;align-items:center;gap:4px">${esc(gstin)}<button class="copybtn-dark" onclick="event.stopPropagation();copyText('${esc(gstin)}',this)" title="Copy GSTIN">⎘</button></div>
         <div class="cw-meta">
           <span class="cw-badge-white">${esc(c.returnFreq)||'—'}</span>
           ${c.username?`<span class="cw-badge-white" style="font-family:'DM Mono',monospace;display:inline-flex;align-items:center;gap:4px">${esc(c.username)}<button class="copybtn-dark" onclick="event.stopPropagation();copyText('${esc(c.username).replace(/'/g,"\\'")}',this)" title="Copy username">⎘</button></span>`:''}
@@ -802,35 +806,8 @@ async function cyclePillCW(rowId, field, el){
   }catch(e){ row[field]=cur; toast('Error: '+e.message,'err'); }
 }
 
-// ── COLUMN DEFINITIONS ──
-// order: Client Name | GSTIN | Username | Password | Period | Ret.Freq | Fees | Fees Freq | Paid | Outstanding | GSTR-1 | GSTR-3B | Actions
-const COLS = [
-  { key:'name',            label:'Client Name',    group:'client', cls:'grp-client-first', align:'left'   },
-  { key:'gstin',           label:'GSTIN',          group:'client', align:'left'   },
-  { key:'username',        label:'Username',       group:'client', align:'left'   },
-  { key:'password',        label:'Password',       group:'client', align:'left'   },
-  { key:'period',          label:'Period',         group:'ret',    cls:'grp-ret-first', align:'center' },
-  { key:'returnFreq',      label:'Ret. Freq.',     group:'fees',   cls:'grp-fees-first', align:'center' },
-  { key:'fees',            label:'Fees (₹)',       group:'fees',   align:'right'  },
-  { key:'feesFreq',        label:'Fees Freq.',     group:'fees',   align:'center' },
-  { key:'feesPaid',        label:'Paid (₹)',       group:'fees',   align:'right'  },
-  { key:'feesOutstanding', label:'Outstanding (₹)',group:'fees',   align:'right'  },
-  { key:'gstr1',           label:'GSTR-1',         group:'ret',    align:'center' },
-  { key:'gstr3b',          label:'GSTR-3B',        group:'ret',    align:'center' },
-  { key:'actions',         label:'',               group:'act',    align:'center' }
-];
-
-// Group config
-const GROUPS = {
-  client: { label:'Client Details', span:0, cls:'th-grp-client' },
-  fees:   { label:'Fees',           span:0, cls:'th-grp-fees'   },
-  ret:    { label:'Returns',        span:0, cls:'th-grp-ret'    },
-  act:    { label:'',               span:1, cls:'th-grp-acts'   }
-};
-
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
-  buildHeader();
   loadData();
   setInterval(loadData, 120000);
 });
@@ -868,7 +845,6 @@ async function loadData(manual=false){
     allRows=res.data||[];
     const pSet=new Set(allRows.map(r=>r.periodKey).filter(Boolean));
     periods=[...pSet].sort((a,b)=>a.localeCompare(b));
-    buildPeriodChips();
     applyFilters();
     const t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
     setSS('ok','Synced '+t);
@@ -877,30 +853,6 @@ async function loadData(manual=false){
     setSS('err','Sync failed');
     if(manual) toast('Error: '+e.message,'err');
   }
-}
-
-// ── PERIOD CHIPS ──
-function buildPeriodChips(){
-  const strip=document.getElementById('periodStrip');
-  const allChip=strip.querySelector('.all-chip');
-  strip.innerHTML='';
-  strip.appendChild(allChip);
-  periods.forEach(pk=>{
-    const c=document.createElement('span');
-    c.className='pchip'+(pk===activePeriod?' active':'');
-    c.textContent=pLabel(pk);
-    c.dataset.pk=pk;
-    c.onclick=()=>selectPeriod(pk,c);
-    strip.appendChild(c);
-  });
-  allChip.classList.toggle('active',activePeriod==='all');
-}
-
-function selectPeriod(pk,el){
-  activePeriod=pk;
-  document.querySelectorAll('.pchip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  applyFilters();
 }
 
 function pLabel(pk){
@@ -962,7 +914,7 @@ function applyFilters(){
   });
 
   rows.sort((a,b)=>(a.periodKey||'').localeCompare(b.periodKey||'')||(a.name||'').localeCompare(b.name||''));
-  renderTable(rows);
+  renderDetails(rows);
   updateKPIs(rows);
   if(mainView==='client') renderClientView(rows);
 }
@@ -978,171 +930,123 @@ function clearFilters(){
   applyFilters();
 }
 
-// ── COLUMN GROUP TOGGLE ──
-function toggleGroup(grp){
-  groupVis[grp]=!groupVis[grp];
-  const tog=document.getElementById('tog-'+grp);
-  if(groupVis[grp]) tog.classList.remove('hidden-grp');
-  else tog.classList.add('hidden-grp');
-  // Show/hide all cells with data-grp
-  document.querySelectorAll('[data-grp="'+grp+'"]').forEach(el=>{
-    el.style.display=groupVis[grp]?'':'none';
-  });
-  // Rebuild group header spans
-  buildGroupHeaderRow();
+// ── CLIENT DETAILS TABLE (one row per client) ──
+function copyBtn(val,title){
+  return val?`<button class="copybtn" onclick="copyText(this.dataset.v,this)" data-v="${esc(val)}" title="${title}">⎘</button>`:'';
 }
-
-// ── BUILD HEADER ──
-function buildHeader(){
-  const thead=document.getElementById('thead');
-  // Row 1 — group headers (will be rebuilt on toggle too)
-  const r1=document.createElement('tr');
-  r1.id='thead-row1';
-  thead.appendChild(r1);
-  // Row 2 — column headers
-  const r2=document.createElement('tr');
-  r2.id='thead-row2';
-  COLS.forEach(col=>{
-    const th=document.createElement('th');
-    th.className='th-col'+(col.align==='right'?' r':col.align==='center'?' c':'')+
-      ' th-'+col.group+(col.cls?' '+col.cls:'');
-    th.textContent=col.label;
-    th.dataset.grp=col.group==='act'?'_act':col.group;
-    if(col.group!=='act') th.dataset.grp=col.group;
-    r2.appendChild(th);
+function renderDetails(rows){
+  const tbody=document.getElementById('dbody');
+  const map={};
+  rows.forEach(r=>{
+    const k=r.gstin; if(!k) return;
+    if(!map[k]) map[k]={gstin:k,latest:r,out:0};
+    const c=map[k];
+    if((r.periodKey||'')>(c.latest.periodKey||'')) c.latest=r;
+    c.out+=parseFloat(r.feesOutstanding)||0;
   });
-  thead.appendChild(r2);
-  buildGroupHeaderRow();
-}
+  const list=Object.values(map).sort((a,b)=>(a.latest.name||'').localeCompare(b.latest.name||''));
+  document.getElementById('rowCount').textContent=list.length+(list.length===1?' client':' clients');
 
-function buildGroupHeaderRow(){
-  const r1=document.getElementById('thead-row1');
-  r1.innerHTML='';
-  // Count visible cols per group
-  const counts={client:0,fees:0,ret:0,act:1};
-  COLS.forEach(col=>{
-    if(col.group==='act') return;
-    if(groupVis[col.group]) counts[col.group]=(counts[col.group]||0)+1;
-  });
-  // Render in order: client → fees → ret → act
-  ['client','fees','ret','act'].forEach(grp=>{
-    const span=counts[grp]||0;
-    if(span===0) return;
-    const th=document.createElement('th');
-    th.className='th-group '+(grp==='act'?'th-grp-acts':'th-grp-'+grp);
-    th.colSpan=span;
-    th.textContent=grp==='client'?'Client Details':grp==='fees'?'Fees':grp==='ret'?'Returns':'';
-    r1.appendChild(th);
-  });
-}
-
-// ── RENDER TABLE ──
-function renderTable(rows){
-  const tbody=document.getElementById('tbody');
-  document.getElementById('rowCount').textContent=rows.length+' rows';
-
-  // Update col2 header visibility
-  document.querySelectorAll('#thead-row2 th').forEach((th,i)=>{
-    const col=COLS[i];
-    if(col&&col.group!=='act'){
-      th.style.display=groupVis[col.group]?'':'none';
-    }
-  });
-
-  if(!rows.length){
-    tbody.innerHTML=`<tr><td colspan="13"><div class="empty-st"><div class="ico">📋</div><p>No records match the filter.</p></div></td></tr>`;
+  if(!list.length){
+    tbody.innerHTML='<tr><td colspan="9"><div class="empty-st"><div class="ico">📋</div><p>No records match the filter.</p></div></td></tr>';
     return;
   }
-
-  let totFees=0,totPaid=0,totOut=0;
-  rows.forEach(r=>{
-    totFees+=parseFloat(r.fees)||0;
-    totPaid+=parseFloat(r.feesPaid)||0;
-    totOut +=parseFloat(r.feesOutstanding)||0;
-  });
-
-  const dataRows=rows.map(r=>{
-    const out  =parseFloat(r.feesOutstanding)||0;
-    const paid =parseFloat(r.feesPaid)||0;
-    const fees =parseFloat(r.fees)||0;
-    const outCls=out>0?'out-red':paid>0&&out<=0?'paid-green':'zero-grey';
-    const trCls =out>0?'has-out':paid>0?'all-paid':'';
-    const g1   =r.gstr1 ||'Not Filed';
-    const g3b  =r.gstr3b||'Not Filed';
-    const rid  =esc(r.rowId);
-
-    // Build cells matching COLS order
-    const cells=[
-      // Client group
-      `<td class="grp-client-first" data-grp="client"><span class="name-cell">${esc(r.name)}</span></td>`,
-      `<td data-grp="client">
-        <div class="copy-wrap">
-          <span class="gstin-cell">${esc(r.gstin)}</span>
-          ${r.gstin?`<button class="copybtn" onclick="copyText('${esc(r.gstin).replace(/'/g,"\\'")}',this)" title="Copy GSTIN">⎘</button>`:''}
-        </div>
-      </td>`,
-      `<td data-grp="client">
-        <div class="copy-wrap">
-          <span class="copy-val">${esc(r.username)||'—'}</span>
-          ${r.username?`<button class="copybtn" onclick="copyText('${esc(r.username).replace(/'/g,"\\'")}',this)" title="Copy username">⎘</button>`:''}
-        </div>
-      </td>`,
-      `<td data-grp="client">
-        <div class="copy-wrap">
-          <span class="copy-val">${esc(r.password)||'—'}</span>
-          ${r.password?`<button class="copybtn" onclick="copyText('${esc(r.password).replace(/'/g,"\\'")}',this)" title="Copy password">⎘</button>`:''}
-        </div>
-      </td>`,
-      // Returns group (period first per layout)
-      `<td class="c grp-ret-first" data-grp="ret"><span class="badge bg-neutral">${pLabel(r.periodKey)}</span></td>`,
-      // Fees group
-      `<td class="c grp-fees-first" data-grp="fees"><span class="badge ${r.returnFreq==='Monthly'?'bg-blue':'bg-orange'}">${esc(r.returnFreq)}</span></td>`,
-      `<td class="r mono" data-grp="fees">₹${num(fees)}</td>`,
-      `<td class="c" data-grp="fees"><span class="badge bg-neutral" style="font-size:9px">${esc(r.feesFreq)||'—'}</span></td>`,
-      `<td class="r" data-grp="fees" style="color:var(--success);font-family:'DM Mono',monospace">₹${num(paid)}</td>`,
-      `<td class="r ${outCls}" data-grp="fees">₹${num(out)}</td>`,
-      // Returns group continued
-      `<td class="c" data-grp="ret">
-        <span class="pill ${g1==='Filed'?'filed':'not-filed'}" onclick="cyclePill('${rid}','gstr1',this)">
-          ${g1==='Filed'?'✓ Filed':'✗ Not Filed'}
-        </span>
-      </td>`,
-      `<td class="c" data-grp="ret">
-        <span class="pill ${g3b==='Filed'?'filed':'not-filed'}" onclick="cyclePill('${rid}','gstr3b',this)">
-          ${g3b==='Filed'?'✓ Filed':'✗ Not Filed'}
-        </span>
-      </td>`,
-      // Actions
-      `<td class="c" data-grp="_act">
-        <div style="display:flex;gap:3px;justify-content:center">
-          <button class="btn btn-secondary btn-xs" onclick="openEditRow('${rid}')">✏️</button>
-          <button class="btn btn-danger btn-xs" onclick="deleteRow('${rid}')">🗑</button>
-        </div>
-      </td>`
-    ];
-
-    // Apply visibility
-    const visibleCells=cells.map((cell,i)=>{
-      const col=COLS[i];
-      if(!col||col.group==='act') return cell;
-      if(!groupVis[col.group]) return cell.replace('<td','<td style="display:none"');
-      return cell;
-    }).join('');
-
-    return `<tr class="${trCls}" data-rowid="${rid}">${visibleCells}</tr>`;
+  let totFees=0,totOut=0;
+  const body=list.map((c,i)=>{
+    const l=c.latest, fees=parseFloat(l.fees)||0;
+    totFees+=fees; totOut+=c.out;
+    return `<tr class="${c.out>0?'has-out':'all-paid'}">
+      <td class="c"><span class="sno">${i+1}</span></td>
+      <td><span class="name-cell">${esc(l.name)}</span></td>
+      <td><div class="copy-wrap"><span class="gstin-cell">${esc(c.gstin)}</span>${copyBtn(c.gstin,'Copy GSTIN')}</div></td>
+      <td><div class="copy-wrap"><span class="copy-val">${esc(l.username)||'—'}</span>${copyBtn(l.username,'Copy username')}</div></td>
+      <td><div class="copy-wrap"><span class="copy-val">${esc(l.password)||'—'}</span>${copyBtn(l.password,'Copy password')}</div></td>
+      <td class="c"><span class="badge ${l.returnFreq==='Monthly'?'bg-blue':l.returnFreq==='Quarterly'?'bg-orange':'bg-neutral'}">${esc(l.returnFreq)||'—'}</span></td>
+      <td class="r mono">₹${num(fees)}</td>
+      <td class="r ${c.out>0?'out-red':'paid-green'}">${c.out>0?'₹'+num(c.out):'✓ Clear'}</td>
+      <td class="c"><div style="display:flex;gap:3px;justify-content:center">
+        <button class="btn btn-secondary btn-xs" data-g="${esc(c.gstin)}" onclick="openEditClient(this.dataset.g)" title="Edit client">✏️</button>
+        <button class="btn btn-danger btn-xs" data-g="${esc(c.gstin)}" onclick="deleteClient(this.dataset.g)" title="Delete client">🗑</button>
+      </div></td>
+    </tr>`;
   }).join('');
+  const tot=`<tr class="tot-row"><td></td><td><strong>📊 Total (${list.length})</strong></td><td></td><td></td><td></td><td></td>
+    <td class="r">₹${num(totFees)}</td>
+    <td class="r" style="color:${totOut>0?'var(--danger)':'var(--success)'}!important">₹${num(totOut)}</td><td></td></tr>`;
+  tbody.innerHTML=body+tot;
+}
 
-  // Total row
-  const totCells=COLS.map((col,i)=>{
-    const vis=col.group==='act'||groupVis[col.group]?'':'display:none;';
-    if(col.key==='name')           return `<td style="${vis}"><strong>📊 Total (${rows.length})</strong></td>`;
-    if(col.key==='fees')           return `<td class="r tot-row-mono" style="${vis}">₹${num(totFees)}</td>`;
-    if(col.key==='feesPaid')       return `<td class="r tot-row-mono" style="${vis}">₹${num(totPaid)}</td>`;
-    if(col.key==='feesOutstanding')return `<td class="r tot-row-mono" style="color:var(--danger);font-family:'DM Mono',monospace;${vis}">₹${num(totOut)}</td>`;
-    return `<td style="${vis}"></td>`;
-  }).join('');
+// ── EDIT / DELETE WHOLE CLIENT ──
+function openEditClient(gstin){
+  const rs=allRows.filter(r=>r.gstin===gstin);
+  if(!rs.length){toast('Client not found','err');return;}
+  const r=[...rs].sort((a,b)=>b.periodKey.localeCompare(a.periodKey))[0];
+  document.getElementById('editRowId').value='';
+  document.getElementById('editClientG').value=gstin;
+  document.getElementById('modalTitle').textContent='Edit Client — '+(r.name||gstin);
+  document.getElementById('m_name').value    =r.name||'';
+  document.getElementById('m_gstin').value   =gstin;
+  document.getElementById('m_user').value    =r.username||'';
+  document.getElementById('m_pass').value    =r.password||'';
+  document.getElementById('m_period').value  =r.periodKey||'';
+  document.getElementById('m_freq').value    =r.returnFreq||'';
+  document.getElementById('m_fees').value    =r.fees||'';
+  document.getElementById('m_feesfreq').value=r.feesFreq||'';
+  document.getElementById('m_paid').value    =r.feesPaid||'';
+  document.getElementById('m_gstr1').value   =r.gstr1||'Not Filed';
+  document.getElementById('m_gstr3b').value  =r.gstr3b||'Not Filed';
+  document.getElementById('m_gstin').disabled=true;
+  document.getElementById('m_period').disabled=true;
+  document.getElementById('rowModal').classList.add('open');
+}
 
-  tbody.innerHTML=dataRows+`<tr class="tot-row">${totCells}</tr>`;
+async function saveClientEdit(){
+  const g=document.getElementById('editClientG').value;
+  const name=document.getElementById('m_name').value.trim();
+  const freq=document.getElementById('m_freq').value;
+  if(!name||!freq){toast('Name and Return Frequency are required','err');return;}
+  const f={
+    name, username:document.getElementById('m_user').value.trim(),
+    password:document.getElementById('m_pass').value.trim(), returnFreq:freq,
+    fees:document.getElementById('m_fees').value||0,
+    feesFreq:document.getElementById('m_feesfreq').value,
+    feesPaid:document.getElementById('m_paid').value||0,
+    gstr1:document.getElementById('m_gstr1').value,
+    gstr3b:document.getElementById('m_gstr3b').value
+  };
+  const targets=allRows.filter(r=>r.gstin===g);
+  const latest=[...targets].sort((a,b)=>b.periodKey.localeCompare(a.periodKey))[0];
+  let fail=0;
+  try{
+    for(const r of targets){
+      const isL=r.rowId===latest.rowId;
+      // Identity fields go to every period; fees / paid / status only to the latest period
+      const data={
+        rowId:r.rowId, periodKey:r.periodKey, name:f.name, gstin:g,
+        username:f.username, password:f.password, returnFreq:f.returnFreq,
+        fees:isL?f.fees:(r.fees||0), feesFreq:isL?f.feesFreq:(r.feesFreq||''),
+        feesPaid:isL?f.feesPaid:(r.feesPaid||0),
+        gstr1:isL?f.gstr1:(r.gstr1||'Not Filed'), gstr3b:isL?f.gstr3b:(r.gstr3b||'Not Filed')
+      };
+      const res=await apiPost('updateRow',data);
+      if(!res.success) fail++;
+    }
+    closeModal();
+    toast(fail?`Updated with ${fail} failure(s)`:'Client updated',fail?'err':'ok');
+    loadData();
+  }catch(e){toast('Error: '+e.message,'err');}
+}
+
+async function deleteClient(gstin){
+  const rs=allRows.filter(r=>r.gstin===gstin);
+  if(!rs.length) return;
+  if(!confirm(`Delete "${rs[0].name}" and all ${rs.length} period entries?\nThis cannot be undone.`)) return;
+  let fail=0;
+  try{
+    for(const r of rs){ const res=await apiPost('deleteRow',{rowId:r.rowId}); if(!res.success) fail++; }
+    toast(fail?`Deleted with ${fail} failure(s)`:'Client deleted',fail?'err':'ok');
+    loadData();
+  }catch(e){toast('Error: '+e.message,'err');}
 }
 
 // ── KPI UPDATE ──
@@ -1159,8 +1063,6 @@ function updateKPIs(rows){
   document.getElementById('kGstr3b').textContent  =p3b;
   const pl=activePeriod==='all'?'All periods':pLabel(activePeriod);
   document.getElementById('kPeriodLbl').textContent=pl;
-  document.getElementById('tableTitle').textContent=
-    'Client & Returns'+(activePeriod!=='all'?' — '+pLabel(activePeriod):'');
 }
 
 // ── STATUS PILL TOGGLE ──
@@ -1361,6 +1263,7 @@ function openEditRow(rowId){
 }
 
 async function saveRow(){
+  if(document.getElementById('editClientG').value) return saveClientEdit();
   const rowId =document.getElementById('editRowId').value;
   const period=document.getElementById('m_period').value;
   const name  =document.getElementById('m_name').value.trim();
@@ -1394,7 +1297,12 @@ async function deleteRow(rowId){
 }
 
 // ── MODAL ──
-function closeModal(){document.getElementById('rowModal').classList.remove('open')}
+function closeModal(){
+  document.getElementById('rowModal').classList.remove('open');
+  document.getElementById('editClientG').value='';
+  document.getElementById('m_gstin').disabled=false;
+  document.getElementById('m_period').disabled=false;
+}
 document.getElementById('rowModal').addEventListener('click',e=>{if(e.target===document.getElementById('rowModal'))closeModal();});
 
 // ── HELPERS ──
